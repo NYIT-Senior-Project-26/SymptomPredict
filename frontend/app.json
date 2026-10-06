@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "SymptomPredict",
+    "slug": "symptompredict",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": { "supportsTablet": true },
+    "android": {},
+    "plugins": [
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "Used to find doctors and clinics near you." }
+      ]
+    ]
+  }
+}
