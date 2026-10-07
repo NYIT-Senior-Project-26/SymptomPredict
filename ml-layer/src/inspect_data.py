@@ -68,3 +68,21 @@ y = clean[LABEL]
 print(x.shape, y.shape)
 
 # Cross validation
+# 5 splits is the default. add 'n_splits=x" if changes are desired
+cv = StratifiedKFold(shuffle=True, random_state=42)
+rf_model = RandomForestClassifier(random_state=42)
+
+# Model eval
+scores = cross_val_score(rf_model, x, y, cv=cv)
+
+print(f"Model Eval Scores: {scores}")
+print(f"== Mean: {scores.mean()}")
+print(f"== Std Deviation: {scores.std()}")
+
+# Fit onto data; analyze output
+rf_model.fit(x,y)
+
+x_one_row = x.iloc[[0]]
+
+probabilities = rf_model.predict_proba(x_one_row)
+print(probabilities)
