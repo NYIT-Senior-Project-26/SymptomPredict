@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
@@ -86,3 +87,20 @@ x_one_row = x.iloc[[0]]
 
 probabilities = rf_model.predict_proba(x_one_row)
 print(probabilities)
+print(probabilities.flatten())
+
+# Obtain RF model classes
+#   Returns disease names in the same order of the disease prediction
+model_classes = rf_model.classes_
+probs_y = probabilities.flatten()
+top_indices = np.argsort(probs_y, descending=True)
+
+# Return the diseases and their probabilities
+top_k_inds = top_indices[:3]
+"""
+top_k_class = model_classes[]
+
+print("\nTop 3 most likely:")
+for ind, dis in zip(top_k_inds, top_k_class):
+    print(ind, dis)
+"""
