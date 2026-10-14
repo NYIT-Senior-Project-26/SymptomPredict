@@ -97,10 +97,32 @@ top_indices = np.argsort(probs_y, descending=True)
 
 # Return the diseases and their probabilities
 top_k_inds = top_indices[:3]
-"""
-top_k_class = model_classes[]
+# print(top_k_inds)
 
-print("\nTop 3 most likely:")
-for ind, dis in zip(top_k_inds, top_k_class):
-    print(ind, dis)
-"""
+for i, ind in enumerate(top_k_inds):
+    print(f"Prediction {i+1}: {model_classes[ind]} - {probs_y[ind]}")
+
+# Actual function call
+def print_top_k_prediction(model: RandomForestClassifier, row: pd.DataFrame, k: int) -> dict:
+    # For testing this will use random forest
+    # Production will use either LightGBM or XGBoost depending on performance
+    return_dict = {}
+
+    # Get classes from model
+    mod_classes = model.classes_
+
+    # Get probabilities and flatten array
+    probs = model.predict_proba(row)
+    probs.flatten()
+
+    # Get top k indicies
+    top_inds = np.argsort(probs, descending=True)
+    top_k_inds = top_inds[:k]
+
+    for i, ind in enumerate(top_k_inds):
+        print(f"Prediction {i+1}: {mod_classes[ind]} - {probs[ind]}")
+        return_dict.update({int(probs[ind]): mod_classes[ind]})
+
+    print(f"Return Dict: {return_dict}")
+    return return_dict
+
