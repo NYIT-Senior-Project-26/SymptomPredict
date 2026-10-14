@@ -2,3 +2,4 @@
 .DS_Store
 .env
 *.pkl
+__pycache__/
