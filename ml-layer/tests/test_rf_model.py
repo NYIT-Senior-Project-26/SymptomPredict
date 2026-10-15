@@ -142,32 +142,32 @@ def test_same_seed_gives_same_model(x, y):
     np.testing.assert_array_equal(a.predict_proba(x), b.predict_proba(x))
 
 
-# print_top_k_prediction_rf
+# top_k_prediction_rf
 # Assumes the return value maps disease name -> probability
 
 @pytest.mark.parametrize("k", [1, 3, 5])
 def test_top_k_returns_k_results(predict_models, model, x, k):
     row = x.iloc[[0]]
-    result = predict_models.print_top_k_prediction_rf(row, k, model=model)
+    result = predict_models.top_k_prediction_rf(row, k, model=model)
     assert len(result) == k
 
 
 def test_top_k_first_result_matches_predict(predict_models, model, x):
     row = x.iloc[[0]]
-    result = predict_models.print_top_k_prediction_rf(row, 3, model=model)
+    result = predict_models.top_k_prediction_rf(row, 3, model=model)
     assert next(iter(result)) == model.predict(row)[0]
 
 
 def test_top_k_is_sorted_descending(predict_models, model, x):
     row = x.iloc[[0]]
-    result = predict_models.print_top_k_prediction_rf(row, 5, model=model)
+    result = predict_models.top_k_prediction_rf(row, 5, model=model)
     probs = list(result.values())
     assert probs == sorted(probs, reverse=True)
 
 
 def test_top_k_probabilities_match_model(predict_models, model, x):
     row = x.iloc[[0]]
-    result = predict_models.print_top_k_prediction_rf(row, 3, model=model)
+    result = predict_models.top_k_prediction_rf(row, 3, model=model)
     expected = dict(zip(model.classes_, model.predict_proba(row)[0]))
     for disease, prob in result.items():
         assert prob == pytest.approx(expected[disease])
@@ -175,7 +175,7 @@ def test_top_k_probabilities_match_model(predict_models, model, x):
 
 def test_top_k_handles_hand_built_symptoms(predict_models, model, x):
     row = make_row(x, ["itching", "skin_rash", "nodal_skin_eruptions"])
-    result = predict_models.print_top_k_prediction_rf(row, 3, model=model)
+    result = predict_models.top_k_prediction_rf(row, 3, model=model)
     assert len(result) == 3
     assert all(disease in model.classes_ for disease in result)
 
@@ -183,5 +183,5 @@ def test_top_k_handles_hand_built_symptoms(predict_models, model, x):
 def test_top_k_larger_than_class_count(predict_models, model, x):
     row = x.iloc[[0]]
     k = len(model.classes_) + 10
-    result = predict_models.print_top_k_prediction_rf(row, k, model=model)
+    result = predict_models.top_k_prediction_rf(row, k, model=model)
     assert len(result) == len(model.classes_)

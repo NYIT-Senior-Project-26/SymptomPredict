@@ -5,7 +5,7 @@ import joblib
 rf_model = joblib.load('ml-layer/models/rf_model.pkl')
 
 # This is the random forest testing mode
-def print_top_k_prediction_rf(row: pd.DataFrame, k: int, model=rf_model) -> dict:
+def top_k_prediction_rf(row: pd.DataFrame, k: int, model=rf_model) -> dict:
     # This will mainly be used for testing purposes, LightGBM / XGBoost is planned for prod.
     # The general structure / layout should remain the same for the final model
     return_dict = {}
