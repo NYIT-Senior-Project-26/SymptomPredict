@@ -18,7 +18,7 @@ client = anthropic.Anthropic(
 # For testing, use 'claude-haiku-5-5'. Explore alternatives and Spring 26 research for prod model
 global_model = 'claude-haiku-5-5'
 global_max_tokens = 1000
-
+            
 class Symptom:
     def __init__(self, name: str, severity: int):
         self.name = name
@@ -101,6 +101,19 @@ class Demographic:
             raise ValueError(f"Weight must be within bounds [35, 350], recieved: {value}")
         self._weight = value
 
+# This is used to make sure the named symptoms actually show up in the dataset
+def symptom_row_builder(symptoms: list[Symptom], columns) -> pd.DataFrame:
+    df = pd.DataFrame(0, index=[0], columns = columns)
+
+    for symptom in symptoms:
+        clean_name = symptom.name.strip().lower().replace(" ", "_")
+        if clean_name in df.columns:
+            df.loc[0, clean_name] = 1
+        else:
+            raise ValueError(f'Symptom name {symptom.name} ({clean_name}) not found in dataset')
+
+    return df
+
 # LLM pipeline
 # Questionnaire summary
 def summarize_questionnaire(questions: Demographic) -> str:
@@ -155,13 +168,24 @@ def chain_of_thought(demographics: Demographic, symptoms: list[Symptom]):
     pass
 
 if __name__ == "__main__":
-    demo = Demographic(30, Sex.MALE, 140)
-    print(demo.to_dict())
+    # demo = Demographic(30, Sex.MALE, 140)
+    # print(demo.to_dict())
 
     symptoms = [
+        # Severity range [1,10]
         Symptom('acne', 2),
-        Symptom('cold', 4),
+        # Symptom('cold', 4),
+        Symptom('itching', 7),
+        Symptom('shivering', 3),
     ]
+
+    # for sympt in symptoms:
+    #     print(sympt.to_dict())
+
+    # bad_symptom = Symptom('test', 99)
+    # print(bad_symptom.to_dict())
 
     # summary = summarize_questionnaire(demo)
     # print(summary)
+
+    symptom_row_builder(symptoms, ['acne', 'itching', 'shivering', 'skin_rash', 'nodal_skin_eruptions', 'continuous_sneezing'])
