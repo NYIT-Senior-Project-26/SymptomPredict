@@ -36,6 +36,11 @@ class Symptom:
                 raise ValueError(f'Severity value out of bounds [1,5]: {value}')
             self._severity = value
 
+    def to_dict(self):
+        sympt_dict = {'name': self.name, 'severity': self.severity}
+        
+        return sympt_dict
+
 class Sex(Enum):
     MALE = "male"
     FEMALE = "female"
@@ -49,11 +54,12 @@ class Demographic:
         # Going to have to add allergies, existing conditions, medications
 
     def to_dict(self):
-        demo_dict = {}
-        demo_dict.update({'age': self.age})
-        demo_dict.update({'sex': self.sex.value})
-        demo_dict.update({'weight (lbs)': self.weight})
-
+        demo_dict = {
+            'age': self.age,
+            'sex': self.sex.value,
+            'weight (lbs)': self.weight
+        }
+        
         return demo_dict
 
     # Property setters for sex
