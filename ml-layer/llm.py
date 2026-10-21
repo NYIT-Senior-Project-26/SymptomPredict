@@ -1,9 +1,10 @@
 import json
+import pandas as pd
 import os
 from dotenv import load_dotenv
 from enum import Enum
 import anthropic
-from .src import predict_models
+from src import predict_models
 
 # This is where the Two-Step CoT process will occur. The idea is that there
 # will be one / two calls necessary that then branch out to other functions
@@ -44,7 +45,16 @@ class Demographic:
     def __init__(self, age: int, sex: Sex, weight: float):
         self.age = age
         self.sex = sex
-        self.weight = weight
+        self.weight = weight    # This is in pounds
+        # Going to have to add allergies, existing conditions, medications
+
+    def to_dict(self):
+        demo_dict = {}
+        demo_dict.update({'age': self.age})
+        demo_dict.update({'sex': self.sex.value})
+        demo_dict.update({'weight (lbs)': self.weight})
+
+        return demo_dict
 
     # Property setters for sex
     @property
@@ -84,9 +94,9 @@ class Demographic:
 
 # LLM pipeline
 # Questionnaire summary
-def summarize_questionnaire(quest: Demographic) -> anthropic.types.Message:
+def summarize_questionnaire(questions: Demographic) -> str:
     prompt1 = """
-        You are an experienced medical assistant taked with summarizing the current patient's demographic information, aiming to understand it
+        You are an experienced medical assistant tasked with summarizing the current patient's demographic information, aiming to understand it
         thoroughly and help provide additional context about the user. Categorize and summarize the following demographic information for the user
         into the specified categories. Use concise bullet points for each category, ensuring all critical information is captured. If a category has
         no relevant information, simply write 'No information provided.' Categories: age, sex, weight.
@@ -98,17 +108,23 @@ def summarize_questionnaire(quest: Demographic) -> anthropic.types.Message:
         messages=[
             {
                 "role": "user",
-                "content": f"{prompt1} \n{quest}",
+                "content": f"{prompt1} \n{questions.to_dict()}",
             }
         ],
     )
-    return output
+    return output.content[0].text
+
+# Full scope explaination
+def explain_diagnosis(summary, symptons, predictions):
+    # This is where the LLM would be fully utilized
+    pass
 
 def chain_of_thought(demographics: Demographic, symptoms: list[Symptom]):
     # Process layout:
     # First Step:
     #   User demographics questionnaire goes straight to LLM prompt 1 for structured summary
     # Second Step:
+    #   Symptoms gets turned into a (x,0) dataframe
     #   Symptoms goes out to print_top_k_prediction_xxx functions
     # Third Step:
     #   Outputs from step one and two are brought to the LLM to give a structured Natural Language output
@@ -119,7 +135,24 @@ def chain_of_thought(demographics: Demographic, symptoms: list[Symptom]):
     # User demographics
     step1_out = summarize_questionnaire(demographics)
 
-    # Symptom prediction
+    # Second step
+    # Turn symptoms into a dataframe
+    
+    top_k = ""# predict_models.top_k_prediction_rf()
+
+    # Third step
 
 
     pass
+
+if __name__ == "__main__":
+    demo = Demographic(30, Sex.MALE, 140)
+    print(demo.to_dict())
+
+    symptoms = [
+        Symptom('acne', 2),
+        Symptom('cold', 4),
+    ]
+
+    # summary = summarize_questionnaire(demo)
+    # print(summary)
