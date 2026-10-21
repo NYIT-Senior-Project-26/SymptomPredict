@@ -26,15 +26,18 @@ class Symptom:
         # This can be added later
         # self.duration = duration
 
-        @property
-        def severity(self) -> int:
-            return self._severity
+    @property
+    def severity(self) -> int:
+        return self._severity
 
-        @severity.setter
-        def severity(self, value: int) -> None:
-            if not (10 >= value >= 1):
-                raise ValueError(f'Severity value out of bounds [1,5]: {value}')
-            self._severity = value
+    @severity.setter
+    def severity(self, value: int) -> None:
+        if not isinstance(value, int):
+            raise TypeError(f'Severity expected as type int, recieved type {type(value).__name__} instead')
+
+        if not (1 <= value <= 10):
+            raise ValueError(f'Severity value out of bounds [1,10]: {value}')
+        self._severity = value
 
     def to_dict(self):
         sympt_dict = {'name': self.name, 'severity': self.severity}
