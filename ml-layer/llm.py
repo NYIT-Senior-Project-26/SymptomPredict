@@ -14,25 +14,9 @@ client = anthropic.Anthropic(
     api_key=os.getenv('ANTHROPIC_API_KEY')
 )
 
-
 # For testing, use 'claude-haiku-5-5'. Explore alternatives and Spring 26 research for prod model
 global_model = 'claude-haiku-5-5'
 global_max_tokens = 1000
-
-# message = client.messages.create(
-#     model=global_model,
-#     max_tokens=global_max_tokens,
-#     messages=[
-#         {
-#             "role": "user",
-#             "content": "What should I search for to find the latest developments in renewable energy?",
-#         }
-#     ],
-# )
-
-# for block in message.content:
-#     if block.type == "text":
-#         print(block.text)
 
 class Symptom:
     def __init__(self, name, severity):
