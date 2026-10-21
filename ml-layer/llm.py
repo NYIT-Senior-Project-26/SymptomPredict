@@ -19,11 +19,21 @@ global_model = 'claude-haiku-5-5'
 global_max_tokens = 1000
 
 class Symptom:
-    def __init__(self, name, severity):
+    def __init__(self, name: str, severity: int):
         self.name = name
-        self.severity = severity
+        self.severity = severity    # 1 -> 10; least to worst severe
         # This can be added later
         # self.duration = duration
+
+        @property
+        def severity(self) -> int:
+            return self._severity
+
+        @severity.setter
+        def severity(self, value: int) -> None:
+            if not (10 >= value >= 1):
+                raise ValueError(f'Severity value out of bounds [1,5]: {value}')
+            self._severity = value
 
 class Sex(Enum):
     MALE = "male"
