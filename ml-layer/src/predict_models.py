@@ -15,15 +15,12 @@ def top_k_prediction_rf(row: pd.DataFrame, k: int, model=rf_model) -> dict:
 
     # Get probabilities and flatten array
     probs = model.predict_proba(row)[0]
-    # flat_probs = probs.flatten()
-    # flat_probs = model.predict_proba(row).flatten()
 
     # Get top k indicies
     top_inds = np.argsort(probs, descending=True)
     top_k_inds = top_inds[:k]
 
-    for i, ind in enumerate(top_k_inds):
-        # print(f"Prediction {i+1}: {mod_classes[ind]} - {probs[ind]}")
+    for ind in enumerate(top_k_inds):
         return_dict.update({mod_classes[ind]: float(probs[ind])})
 
     # print(f"Return Dict: {return_dict}")
