@@ -390,9 +390,14 @@ class Demographic:
         demo_dict = {
             'age': self.age,
             'sex': self.sex.value,
-            'weight (lbs)': self.weight
+            'weight (lbs)': self.weight,
+            'blood_pressure': self.blood_pressure.value,
+            'smoking_status': self.smoking_status.value,
+            'medications': [m.to_dict() for m in self.medications],
+            'allergies': [a.to_dict() for a in self.allergies],
+            'conditions': [c.to_dict() for c in self.conditions]
         }
-        
+
         return demo_dict
 
     # Property setters for sex
@@ -446,11 +451,25 @@ def symptom_row_builder(symptoms: list[Symptom], columns) -> pd.DataFrame:
 
 # LLM pipeline
 # Questionnaire summary
+def _bulleted(items: list) -> str:
+    # Explicit "None reported" so the LLM doesn't read an empty section as missing data
+    if not items:
+        return "  - None reported"
+    return "\n".join(f"  - {item}" for item in items)
+
 def summarize_questionnaire(questions: Demographic) -> str:
     out_str = f"""
 AGE: {questions.age}
 SEX: {questions.sex.value}
-Weight: {questions.weight}
+WEIGHT (lbs): {questions.weight}
+BLOOD PRESSURE: {questions.blood_pressure.value}
+SMOKING STATUS: {questions.smoking_status.value}
+MEDICATIONS:
+{_bulleted(questions.medications)}
+ALLERGIES:
+{_bulleted(questions.allergies)}
+ONGOING CONDITIONS:
+{_bulleted(questions.conditions)}
     """
 
     return out_str
