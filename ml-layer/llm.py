@@ -5,6 +5,7 @@ import joblib
 from pathlib import Path
 from dotenv import load_dotenv
 from enum import Enum
+from datetime import date
 import anthropic
 from src import predict_models
 import sklearn.ensemble
@@ -67,6 +68,303 @@ class SmokingStatus(Enum):
     FORMER = "former"
     CURRENT = "current"
 
+class DosageUnit(Enum):
+    MG = "mg"
+    MCG = "mcg"
+    G = "g"
+    ML = "mL"
+    IU = "IU"           # e.g. vitamin D
+    UNITS = "units"     # e.g. insulin
+    PUFFS = "puffs"     # inhalers
+    DROPS = "drops"
+    TABLETS = "tablets" # for when the user only knows the pill count
+
+class Frequency(Enum):
+    ONCE_DAILY = "once daily"
+    TWICE_DAILY = "twice daily"
+    THREE_TIMES_DAILY = "three times daily"
+    FOUR_TIMES_DAILY = "four times daily"
+    EVERY_OTHER_DAY = "every other day"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    AS_NEEDED = "as needed"
+
+class Route(Enum):
+    ORAL = "oral"
+    SUBLINGUAL = "sublingual"
+    TOPICAL = "topical"
+    TRANSDERMAL = "transdermal"
+    INHALED = "inhaled"
+    NASAL = "nasal"
+    OPHTHALMIC = "ophthalmic"   # eye drops
+    INJECTION = "injection"
+    OTHER = "other"
+
+class Medication:
+    def __init__(self,
+                 name: str,
+                 frequency: Frequency,
+                 dosage: float | None = None,     # Users often don't know their exact dose
+                 unit: DosageUnit | None = None,
+                 route: Route = Route.ORAL,
+                 prescribed: bool = True          # False for OTC / supplements
+                 ):
+        if (dosage is None) != (unit is None):
+            raise ValueError("Dosage and unit must either both be provided or both be omitted")
+
+        self.name = name
+        self.frequency = frequency
+        self.dosage = dosage
+        self.unit = unit
+        self.route = route
+        self.prescribed = prescribed
+
+    # Property setters for name
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError(f'Medication name expected as type str, recieved type {type(value).__name__} instead')
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError('Medication name cannot be empty')
+        self._name = cleaned
+
+    # Property setters for dosage
+    @property
+    def dosage(self) -> float | None:
+        return self._dosage
+
+    @dosage.setter
+    def dosage(self, value: float | None) -> None:
+        if value is None:
+            self._dosage = None
+            return
+        # bool is a subclass of int, so exclude it explicitly
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(f'Dosage expected as type float, recieved type {type(value).__name__} instead')
+        if value <= 0:
+            raise ValueError(f'Dosage must be positive, recieved: {value}')
+        self._dosage = float(value)
+
+    # Property setters for unit
+    @property
+    def unit(self) -> DosageUnit | None:
+        return self._unit
+
+    @unit.setter
+    def unit(self, value: DosageUnit | None) -> None:
+        if value is not None and not isinstance(value, DosageUnit):
+            raise ValueError(f"Unit must be an instance of {DosageUnit.__name__}")
+        self._unit = value
+
+    # Property setters for frequency
+    @property
+    def frequency(self) -> Frequency:
+        return self._frequency
+
+    @frequency.setter
+    def frequency(self, value: Frequency) -> None:
+        if not isinstance(value, Frequency):
+            raise ValueError(f"Frequency must be an instance of {Frequency.__name__}")
+        self._frequency = value
+
+    # Property setters for route
+    @property
+    def route(self) -> Route:
+        return self._route
+
+    @route.setter
+    def route(self, value: Route) -> None:
+        if not isinstance(value, Route):
+            raise ValueError(f"Route must be an instance of {Route.__name__}")
+        self._route = value
+
+    def to_dict(self):
+        med_dict = {
+            'name': self.name,
+            'dosage': self.dosage,
+            'unit': self.unit.value if self.unit else None,
+            'frequency': self.frequency.value,
+            'route': self.route.value,
+            'prescribed': self.prescribed
+        }
+
+        return med_dict
+
+    # Readable one-liner for the questionnaire summary, e.g.
+    # "Lisinopril 10 mg, oral, once daily (prescribed)"
+    def __str__(self) -> str:
+        dose = f" {self.dosage:g} {self.unit.value}" if self.dosage is not None else " (dose unknown)"
+        source = "prescribed" if self.prescribed else "OTC"
+        return f"{self.name}{dose}, {self.route.value}, {self.frequency.value} ({source})"
+
+# Shared validation for the free-text name fields below
+def _clean_name(value: str, label: str) -> str:
+    if not isinstance(value, str):
+        raise TypeError(f'{label} expected as type str, recieved type {type(value).__name__} instead')
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError(f'{label} cannot be empty')
+    return cleaned
+
+class AllergyCategory(Enum):
+    MEDICATION = "medication"
+    FOOD = "food"
+    ENVIRONMENTAL = "environmental"   # pollen, dust, mold, pet dander
+    INSECT = "insect"                 # stings / bites
+    LATEX = "latex"
+    OTHER = "other"
+
+class AllergySeverity(Enum):
+    MILD = "mild"           # e.g. sneezing, mild itching
+    MODERATE = "moderate"   # e.g. hives, swelling
+    SEVERE = "severe"       # e.g. anaphylaxis, trouble breathing
+    UNKNOWN = "unknown"
+
+class Allergy:
+    def __init__(self,
+                 allergen: str,
+                 category: AllergyCategory,
+                 severity: AllergySeverity = AllergySeverity.UNKNOWN,
+                 reaction: str | None = None      # Free text, e.g. "hives", "throat swelling"
+                 ):
+        self.allergen = allergen
+        self.category = category
+        self.severity = severity
+        self.reaction = reaction
+
+    # Property setters for allergen
+    @property
+    def allergen(self) -> str:
+        return self._allergen
+
+    @allergen.setter
+    def allergen(self, value: str) -> None:
+        self._allergen = _clean_name(value, 'Allergen')
+
+    # Property setters for category
+    @property
+    def category(self) -> AllergyCategory:
+        return self._category
+
+    @category.setter
+    def category(self, value: AllergyCategory) -> None:
+        if not isinstance(value, AllergyCategory):
+            raise ValueError(f"Category must be an instance of {AllergyCategory.__name__}")
+        self._category = value
+
+    # Property setters for severity
+    @property
+    def severity(self) -> AllergySeverity:
+        return self._severity
+
+    @severity.setter
+    def severity(self, value: AllergySeverity) -> None:
+        if not isinstance(value, AllergySeverity):
+            raise ValueError(f"Severity must be an instance of {AllergySeverity.__name__}")
+        self._severity = value
+
+    # Property setters for reaction
+    @property
+    def reaction(self) -> str | None:
+        return self._reaction
+
+    @reaction.setter
+    def reaction(self, value: str | None) -> None:
+        self._reaction = None if value is None else _clean_name(value, 'Reaction')
+
+    def to_dict(self):
+        allergy_dict = {
+            'allergen': self.allergen,
+            'category': self.category.value,
+            'severity': self.severity.value,
+            'reaction': self.reaction
+        }
+
+        return allergy_dict
+
+    # e.g. "Penicillin (medication) - severe: hives"
+    def __str__(self) -> str:
+        reaction = f": {self.reaction}" if self.reaction else ""
+        return f"{self.allergen} ({self.category.value}) - {self.severity.value}{reaction}"
+
+class ConditionStatus(Enum):
+    ACTIVE = "active"           # Currently has symptoms / not under control
+    MANAGED = "managed"         # Under control with treatment
+    IN_REMISSION = "in remission"
+    NOT_SURE = "not sure"
+
+class Condition:
+    def __init__(self,
+                 name: str,
+                 status: ConditionStatus = ConditionStatus.NOT_SURE,
+                 diagnosed: bool = True,              # False if self-suspected, not confirmed by a clinician
+                 year_diagnosed: int | None = None
+                 ):
+        self.name = name
+        self.status = status
+        self.diagnosed = diagnosed
+        self.year_diagnosed = year_diagnosed
+
+    # Property setters for name
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = _clean_name(value, 'Condition name')
+
+    # Property setters for status
+    @property
+    def status(self) -> ConditionStatus:
+        return self._status
+
+    @status.setter
+    def status(self, value: ConditionStatus) -> None:
+        if not isinstance(value, ConditionStatus):
+            raise ValueError(f"Status must be an instance of {ConditionStatus.__name__}")
+        self._status = value
+
+    # Property setters for year_diagnosed
+    @property
+    def year_diagnosed(self) -> int | None:
+        return self._year_diagnosed
+
+    @year_diagnosed.setter
+    def year_diagnosed(self, value: int | None) -> None:
+        if value is None:
+            self._year_diagnosed = None
+            return
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise TypeError(f'Year diagnosed expected as type int, recieved type {type(value).__name__} instead')
+        current_year = date.today().year
+        if not (1900 <= value <= current_year):
+            raise ValueError(f'Year diagnosed must be within bounds [1900, {current_year}], recieved: {value}')
+        self._year_diagnosed = value
+
+    def to_dict(self):
+        condition_dict = {
+            'name': self.name,
+            'status': self.status.value,
+            'diagnosed': self.diagnosed,
+            'year_diagnosed': self.year_diagnosed
+        }
+
+        return condition_dict
+
+    # e.g. "Type 2 diabetes - managed, diagnosed 2019"
+    def __str__(self) -> str:
+        if self.diagnosed:
+            since = f", diagnosed {self.year_diagnosed}" if self.year_diagnosed else ", diagnosed"
+        else:
+            since = ", not formally diagnosed"
+        return f"{self.name} - {self.status.value}{since}"
+
 # Figure out if any other fields would be useful here
 class Demographic:
     def __init__(self,
@@ -74,14 +372,19 @@ class Demographic:
                  sex: Sex,
                  weight: float,
                  blood_pressure: BloodPressure,
-                 smoking_status: SmokingStatus
+                 smoking_status: SmokingStatus,
+                 medications: list[Medication] | None = None,
+                 allergies: list[Allergy] | None = None,
+                 conditions: list[Condition] | None = None
                  ):
         self.age = age
         self.sex = sex
         self.weight = weight    # This is in pounds
-        # Going to have to add allergies, existing conditions, medications
         self.blood_pressure = blood_pressure
         self.smoking_status = smoking_status
+        self.medications = medications if medications is not None else []
+        self.allergies = allergies if allergies is not None else []
+        self.conditions = conditions if conditions is not None else []
 
     def to_dict(self):
         demo_dict = {
