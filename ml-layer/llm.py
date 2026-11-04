@@ -125,31 +125,11 @@ def symptom_row_builder(symptoms: list[Symptom], columns) -> pd.DataFrame:
 # LLM pipeline
 # Questionnaire summary
 def summarize_questionnaire(questions: Demographic) -> str:
-    # This function might just be better / more efficient as a 
-    # structure builder rather than the LLM call that was planned
-    prompt = """
-        You are an experienced medical assistant tasked with summarizing the current patient's demographic information, aiming to understand it
-        thoroughly and help provide additional context about the user. Categorize and summarize the following demographic information for the user
-        into the specified categories. Use concise bullet points for each category, ensuring all critical information is captured. If a category has
-        no relevant information, simply write 'No information provided.' Categories: age, sex, weight.
+    out_str = f"""
+AGE: {questions.age}
+SEX: {questions.sex.value}
+Weight: {questions.weight}
     """
-
-    out_str = ""
-    
-    output = client.messages.create(
-        model=global_model,
-        max_tokens=global_max_tokens,
-        messages=[
-            {
-                "role": "user",
-                "content": f"{prompt} \n{questions.to_dict()}",
-            }
-        ],
-    )
-
-    for block in output.content:
-        if block.type == 'text':
-            out_str += block.text
 
     return out_str
 
@@ -250,4 +230,5 @@ if __name__ == "__main__":
         Symptom('nodal_skin_eruptions', 3)
     ]
 
-    chain_of_thought(demo, symptoms, 5)
+    # chain_of_thought(demo, symptoms, 5)
+    summarize_questionnaire(demo)
