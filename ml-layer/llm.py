@@ -56,13 +56,32 @@ class Sex(Enum):
     MALE = "male"
     FEMALE = "female"
 
+class BloodPressure(Enum):
+    HIGH = "high"
+    NORMAL = "normal"
+    LOW = "low"
+    NOT_SURE = "not sure"
+
+class SmokingStatus(Enum):
+    NEVER = "never"
+    FORMER = "former"
+    CURRENT = "current"
+
 # Figure out if any other fields would be useful here
 class Demographic:
-    def __init__(self, age: int, sex: Sex, weight: float):
+    def __init__(self,
+                 age: int,
+                 sex: Sex,
+                 weight: float,
+                 blood_pressure: BloodPressure,
+                 smoking_status: SmokingStatus
+                 ):
         self.age = age
         self.sex = sex
         self.weight = weight    # This is in pounds
         # Going to have to add allergies, existing conditions, medications
+        self.blood_pressure = blood_pressure
+        self.smoking_status = smoking_status
 
     def to_dict(self):
         demo_dict = {
