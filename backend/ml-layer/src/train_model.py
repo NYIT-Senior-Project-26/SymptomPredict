@@ -8,7 +8,6 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
-
 # Specifically used to just train the model off of the symbipredict-2022 dataset
 # Data set link:
 # https://www.kaggle.com/datasets/manvivemula/symbipredict-2022
@@ -17,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 # Set dataset path
 root_dir = Path(__file__).resolve().parent
 dataset_path = root_dir.parent / "data" / "dataset.csv"
-model_dir = root_dir.parent / "models"
+model_dir = root_dir.parent.parent / "models"   # backend/models, shared with the API
 raw = pd.read_csv(dataset_path)
 
 # This is the target column in the CSV

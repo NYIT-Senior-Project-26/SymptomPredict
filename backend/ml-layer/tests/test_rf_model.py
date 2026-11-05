@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 ML_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = ML_DIR.parent
 DATASET_PATH = ML_DIR / "data" / "dataset.csv"
-MODEL_PATH = ML_DIR / "models" / "rf_model.pkl"
+MODEL_PATH = REPO_ROOT / "models" / "rf_model.pkl"   # REPO_ROOT is backend/ now
 LABEL = "prognosis"
 
 # The .pkl is gitignored, so skip instead of failing on a fresh clone

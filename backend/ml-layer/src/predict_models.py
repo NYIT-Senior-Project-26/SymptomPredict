@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 from pathlib import Path
 
-model_dir = Path(__file__).resolve().parent.parent / "models"
+model_dir = Path(__file__).resolve().parent.parent.parent / "models"
 
 rf_model = joblib.load(model_dir / 'rf_model.pkl')
 lgbm_model = joblib.load(model_dir / 'lgbm_model.pkl')

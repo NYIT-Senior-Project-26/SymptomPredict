@@ -20,7 +20,7 @@ client = anthropic.Anthropic(
 )
 
 # For loading the ML model
-base_dir = Path(__file__).resolve().parent
+base_dir = Path(__file__).resolve().parent.parent
 model_path = base_dir / "models" / "rf_model.pkl"   # This will change depending on which model type is used
 rf_model: sklearn.ensemble._forest.RandomForestClassifier = joblib.load(model_path)
 
