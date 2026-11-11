@@ -6,6 +6,7 @@ from pathlib import Path
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
+from augment import augment_with_dropout
 
 # Specifically used to just train the model off of the symbipredict-2022 dataset
 # Data set link:
@@ -110,11 +111,20 @@ lgbm_model = lightgbm.LGBMClassifier(
 )
 
 # Model eval
+# This is the full-profile sanity check (~0.99) and is measured WITHOUT augmentation.
+# It can't show augmentation's benefit; that only appears on partial-symptom input,
+# which compare_models.py measures (augmenting inside each fold, never before splitting).
 lgbm_scores = cross_val_score(lgbm_model, x, y, cv=cv)
 print(f" lgbm: mean={lgbm_scores.mean():.3f} std={lgbm_scores.std():.3f}")
 
-# Fit onto data; save model
-lgbm_model.fit(x, y)
+# Fit onto AUGMENTED data; save model.
+# The production model trains on the originals plus symptom-dropout copies so it
+# handles 1-3 symptom input (see augment.py). Safe to use all rows here: this is the
+# final fit, not an evaluation, so there is no test set to leak into.
+# The result is still a plain LGBMClassifier, so llm.py / predict_models.py load it unchanged.
+x_aug, y_aug = augment_with_dropout(x, y)
+print(f"       final fit on {len(x_aug)} rows ({len(x)} originals + dropout copies)")
+lgbm_model.fit(x_aug, y_aug)
 joblib.dump(lgbm_model, model_dir / "lgbm_model.pkl")
 
 print(f"Saved models to {model_dir}")

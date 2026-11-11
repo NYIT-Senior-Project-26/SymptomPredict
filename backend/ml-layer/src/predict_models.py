@@ -73,3 +73,6 @@ def top_k_prediction_lgbm(row: pd.DataFrame, k: int, model=lgbm_model) -> dict:
         return_dict.update({mod_classes[ind]: float(probs[ind])})
 
     return return_dict
+
+if __name__ == "__main__":
+    print(type(lgbm_model))

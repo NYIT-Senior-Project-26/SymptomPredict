@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import os
 import joblib
+import lightgbm
 from pathlib import Path
 from dotenv import load_dotenv
 from enum import Enum
@@ -21,8 +22,12 @@ client = anthropic.Anthropic(
 
 # For loading the ML model
 base_dir = Path(__file__).resolve().parent.parent
-model_path = base_dir / "models" / "rf_model.pkl"   # This will change depending on which model type is used
-rf_model: sklearn.ensemble._forest.RandomForestClassifier = joblib.load(model_path)
+lgbm_model: lightgbm.sklearn.LGBMClassifier = joblib.load(base_dir / "models" / "lgbm_model.pkl")
+
+# base_dir = Path(__file__).resolve().parent.parent
+# model_path = base_dir / "models" / "rf_model.pkl"   # This will change depending on which model type is used
+# rf_model: sklearn.ensemble._forest.RandomForestClassifier = joblib.load(model_path)
+# lgbm_model: lightgbm.
 
 # For testing, use 'claude-haiku-5-5'. Explore alternatives and Spring 26 research for prod model
 global_model = 'claude-haiku-5-5'
@@ -548,10 +553,12 @@ def chain_of_thought(demographics: Demographic, symptoms: list[Symptom], top_k: 
 
     # Second step
     # Turn symptoms into a dataframe
-    symptom_row = symptom_row_builder(symptoms, rf_model.feature_names_in_)
+    # symptom_row = symptom_row_builder(symptoms, rf_model.feature_names_in_)
+    symptom_row = symptom_row_builder(symptoms, lgbm_model.feature_names_in_)
     symptoms_json = json.dumps([s.to_dict() for s in symptoms])
     
-    top_k_predictions = predict_models.top_k_prediction_rf(symptom_row, top_k, rf_model)
+    # top_k_predictions = predict_models.top_k_prediction_rf(symptom_row, top_k, rf_model)
+    top_k_predictions = predict_models.top_k_prediction_lgbm(symptom_row, top_k)
 
     # Third step
     explaination = explain_diagnosis(summary_output, symptoms_json, top_k_predictions)
@@ -563,7 +570,9 @@ def chain_of_thought(demographics: Demographic, symptoms: list[Symptom], top_k: 
     }
 
 if __name__ == "__main__":
-    demo = Demographic(30, Sex.MALE, 140)
+    demo1 = Demographic(30, Sex.MALE, 140, BloodPressure.NORMAL, SmokingStatus.NEVER)
+    demo2 = Demographic(18, Sex.FEMALE, 124, BloodPressure.HIGH, SmokingStatus.FORMER)
+    demo3 = Demographic(22, Sex.MALE, 194, BloodPressure.LOW, SmokingStatus.CURRENT)
 
     symptoms = [
         Symptom('itching', 7),
@@ -571,5 +580,10 @@ if __name__ == "__main__":
         Symptom('nodal_skin_eruptions', 3)
     ]
 
-    # chain_of_thought(demo, symptoms, 5)
-    summarize_questionnaire(demo)
+    # Summarize questionnaires
+    #print(summarize_questionnaire(demo1))
+    #summarize_questionnaire(demo2)
+    #summarize_questionnaire(demo3)
+
+    # Chain of Thought
+    print(chain_of_thought(demo1, symptoms, 5))
