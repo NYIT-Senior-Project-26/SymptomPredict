@@ -2,16 +2,24 @@
   "expo": {
     "name": "SymptomPredict",
     "slug": "symptompredict",
+    "scheme": "symptompredict",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "ios": { "supportsTablet": true },
+    "ios": {
+      "supportsTablet": true
+    },
     "android": {},
     "plugins": [
       [
         "expo-location",
-        { "locationWhenInUsePermission": "Used to find doctors and clinics near you." }
-      ]
+        {
+          "locationWhenInUsePermission": "Used to find doctors and clinics near you."
+        }
+      ],
+      "expo-router",
+      "expo-font",
+      "expo-image"
     ]
   }
 }
