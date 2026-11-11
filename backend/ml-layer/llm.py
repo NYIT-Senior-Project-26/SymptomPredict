@@ -533,7 +533,7 @@ def explain_diagnosis(summary, symptoms, predictions):
             }
         ],
     )
-    print([block.type for block in output.content])
+    # print([block.type for block in output.content])
 
     for block in output.content:
         if block.type == 'text':
@@ -559,7 +559,7 @@ def chain_of_thought(demographics: Demographic, symptoms: list[Symptom], top_k: 
     return {
         'explaination': explaination,
         'predictions': top_k_predictions,
-        'symptoms': [s.to_dicts() for s in symptoms]
+        'symptoms': [s.to_dict() for s in symptoms]
     }
 
 if __name__ == "__main__":
