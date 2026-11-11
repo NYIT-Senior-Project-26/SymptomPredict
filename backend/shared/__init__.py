@@ -13,6 +13,7 @@ from shared.patient import (
     Sex,
     SmokingStatus,
 )
+from shared.predictions import ConditionScore
 from shared.symptoms import Symptom, normalize_symptom_name
 
 __all__ = [
@@ -20,6 +21,7 @@ __all__ = [
     "AllergyCategory",
     "AllergySeverity",
     "BloodPressure",
+    "ConditionScore",
     "ConditionStatus",
     "Demographic",
     "DosageUnit",

@@ -4,8 +4,6 @@ from typing import Annotated
 from pydantic import Field, StrictInt, field_validator, model_validator
 from shared.base import NonEmptyStr, SharedModel
 
-# Taken from llm.py, moved to top level to avoid redeclarations
-
 class Sex(str, Enum):
     MALE = "male"
     FEMALE = "female"
@@ -26,11 +24,11 @@ class DosageUnit(str, Enum):
     MCG = "mcg"
     G = "g"
     ML = "mL"
-    IU = "IU"            # e.g. vitamin D
-    UNITS = "units"      # e.g. insulin
-    PUFFS = "puffs"      # inhalers
+    IU = "IU"
+    UNITS = "units"
+    PUFFS = "puffs"
     DROPS = "drops"
-    TABLETS = "tablets"  # for when the user only knows the pill count
+    TABLETS = "tablets"
 
 class Frequency(str, Enum):
     ONCE_DAILY = "once daily"
@@ -49,31 +47,31 @@ class Route(str, Enum):
     TRANSDERMAL = "transdermal"
     INHALED = "inhaled"
     NASAL = "nasal"
-    OPHTHALMIC = "ophthalmic"  # eye drops
+    OPHTHALMIC = "ophthalmic"
     INJECTION = "injection"
     OTHER = "other"
 
 class AllergyCategory(str, Enum):
     MEDICATION = "medication"
     FOOD = "food"
-    ENVIRONMENTAL = "environmental"  # pollen, dust, mold, pet dander
-    INSECT = "insect"                # stings / bites
+    ENVIRONMENTAL = "environmental"
+    INSECT = "insect"
     LATEX = "latex"
     OTHER = "other"
 
 class AllergySeverity(str, Enum):
-    MILD = "mild"          # e.g. sneezing, mild itching
-    MODERATE = "moderate"  # e.g. hives, swelling
-    SEVERE = "severe"      # e.g. anaphylaxis, trouble breathing
+    MILD = "mild"
+    MODERATE = "moderate"
+    SEVERE = "severe"
     UNKNOWN = "unknown"
 
 class ConditionStatus(str, Enum):
-    ACTIVE = "active"          # Currently has symptoms / not under control
-    MANAGED = "managed"        # Under control with treatment
+    ACTIVE = "active"
+    MANAGED = "managed"
     IN_REMISSION = "in remission"
     NOT_SURE = "not sure"
 
-# ========== Models ==========
+# Models
 
 class Medication(SharedModel):
     name: NonEmptyStr
@@ -81,7 +79,7 @@ class Medication(SharedModel):
     dosage: Annotated[float, Field(gt=0)] | None = None
     unit: DosageUnit | None = None
     route: Route = Route.ORAL
-    prescribed: bool = True  # False for OTC / supplements
+    prescribed: bool = True # False for OTC / supplements
 
     @field_validator("dosage", mode="before")
     @classmethod
@@ -156,5 +154,3 @@ class Demographic(SharedModel):
         if isinstance(value, bool):
             raise ValueError("weight must be a number, not a boolean")
         return value
-
-    # to_dict() is gone; use demographic.model_dump(mode="json")
