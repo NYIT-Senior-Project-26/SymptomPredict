@@ -61,6 +61,6 @@ The code for these is in place. `backend/.env` doesn't exist yet; copy it from `
 1. Create `backend/.env` and add an Anthropic key so the main symptom-check flow works.
 2. Install [Node.js LTS](https://nodejs.org) and run the frontend.
 3. Return clear errors when a key is missing in `/predict` and `/providers/nearby`.
-4. Save symptom checks to the database.
+4. ~~Save symptom checks to the database.~~ Dropped: because of HIPAA, the team decided not to store user health information (see [frontend/PROGRESS.md](frontend/PROGRESS.md#privacy-no-login-nothing-saved)). Keep `/predict` free of logging and storage.
 5. Add screens for nearby providers and medication search.
 6. Train and add the ML model.

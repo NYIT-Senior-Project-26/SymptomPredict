@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 
 import { HeaderBack } from '@/components/HeaderBack';
 import { IntakeProvider } from '@/state/intake';
+import { ProfileProvider } from '@/state/profile';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -30,62 +31,64 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <IntakeProvider>
-      <Stack
-        screenOptions={{
-          contentStyle: { backgroundColor: colors.bgSurface },
-          header: ({ options, back, navigation }) => (
-            <HeaderBack
-              title={options.title ?? ''}
-              onBack={back && options.headerBackVisible !== false ? navigation.goBack : undefined}
-            />
-          ),
-        }}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+    <ProfileProvider>
+      <IntakeProvider>
+        <Stack
+          screenOptions={{
+            contentStyle: { backgroundColor: colors.bgSurface },
+            header: ({ options, back, navigation }) => (
+              <HeaderBack
+                title={options.title ?? ''}
+                onBack={back && options.headerBackVisible !== false ? navigation.goBack : undefined}
+              />
+            ),
+          }}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
 
-        {/* 1 · Onboarding & Profile setup */}
-        <Stack.Screen name="(onboarding)/welcome" options={{ headerShown: false }} />
-        <Stack.Screen name="(onboarding)/consent" options={{ title: 'Privacy & Data Consent' }} />
-        <Stack.Screen name="setup/basic" options={{ title: 'Basic info' }} />
-        <Stack.Screen name="setup/allergies" options={{ title: 'Allergies' }} />
-        <Stack.Screen name="setup/medications" options={{ title: 'Medications' }} />
-        <Stack.Screen name="setup/conditions" options={{ title: 'Ongoing conditions' }} />
-        <Stack.Screen name="setup/insurance" options={{ title: 'Insurance' }} />
+          {/* 1 · Onboarding & profile setup (no login; the profile is kept in memory only) */}
+          <Stack.Screen name="(onboarding)/welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="(onboarding)/consent" options={{ title: 'Privacy & consent' }} />
+          <Stack.Screen name="setup/basic" options={{ title: 'Profile setup' }} />
+          <Stack.Screen name="setup/allergies" options={{ title: 'Profile setup' }} />
+          <Stack.Screen name="setup/medications" options={{ title: 'Profile setup' }} />
+          <Stack.Screen name="setup/conditions" options={{ title: 'Profile setup' }} />
+          <Stack.Screen name="setup/insurance" options={{ title: 'Profile setup' }} />
 
-        {/* Home, History, Chat, Profile */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* Home, History, Chat, Profile */}
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
-        {/* 2 · Symptom intake */}
-        <Stack.Screen name="intake/index" options={{ title: 'Chief complaint' }} />
-        <Stack.Screen name="intake/body-map" options={{ title: 'Body map' }} />
-        <Stack.Screen name="intake/follow-up" options={{ title: 'Follow-up question' }} />
-        <Stack.Screen name="intake/severity" options={{ title: 'Severity & duration' }} />
-        <Stack.Screen name="intake/high-risk" options={{ title: 'High-risk check' }} />
-        <Stack.Screen name="intake/summary" options={{ title: 'Confirm your answers' }} />
-        <Stack.Screen
-          name="intake/analyzing"
-          options={{ headerShown: false, gestureEnabled: false }}
-        />
+          {/* 2 · Symptom intake (every step shares the "Symptom check" header) */}
+          <Stack.Screen name="intake/index" options={{ title: 'Symptom check' }} />
+          <Stack.Screen name="intake/body-map" options={{ title: 'Symptom check' }} />
+          <Stack.Screen name="intake/follow-up" options={{ title: 'Symptom check' }} />
+          <Stack.Screen name="intake/severity" options={{ title: 'Symptom check' }} />
+          <Stack.Screen name="intake/high-risk" options={{ title: 'Symptom check' }} />
+          <Stack.Screen name="intake/summary" options={{ title: 'Symptom check' }} />
+          <Stack.Screen
+            name="intake/analyzing"
+            options={{ headerShown: false, gestureEnabled: false }}
+          />
 
-        {/* 3 · Results & Care */}
-        <Stack.Screen name="results/index" options={{ title: 'Your result', headerBackVisible: false }} />
-        <Stack.Screen name="results/emergency" options={{ title: 'Get help now' }} />
-        <Stack.Screen name="results/providers" options={{ title: 'Providers near you' }} />
-        <Stack.Screen name="results/pharmacy" options={{ title: 'Pharmacy & OTC' }} />
-        <Stack.Screen name="results/condition/[name]" options={{ title: 'Condition details' }} />
+          {/* 3 · Results & Care */}
+          <Stack.Screen name="results/index" options={{ title: 'Your result', headerBackVisible: false }} />
+          <Stack.Screen name="results/emergency" options={{ title: 'Get help now' }} />
+          <Stack.Screen name="results/providers" options={{ title: 'Providers near you' }} />
+          <Stack.Screen name="results/pharmacy" options={{ title: 'Pharmacy & OTC' }} />
+          <Stack.Screen name="results/condition/[name]" options={{ title: 'Condition details' }} />
 
-        {/* 4 · Chat, History & Follow-up */}
-        <Stack.Screen name="chat/diagnosis" options={{ title: 'Diagnosis chat' }} />
-        <Stack.Screen name="chat/medication" options={{ title: 'Medication chat' }} />
-        <Stack.Screen name="export" options={{ title: 'Export & share', presentation: 'modal' }} />
-        <Stack.Screen name="feedback" options={{ title: 'Feedback' }} />
-        <Stack.Screen name="tracker" options={{ title: 'Condition tracker' }} />
+          {/* 4 · Chat, History & Follow-up */}
+          <Stack.Screen name="chat/diagnosis" options={{ title: 'Diagnosis chat' }} />
+          <Stack.Screen name="chat/medication" options={{ title: 'Medication chat' }} />
+          <Stack.Screen name="export" options={{ title: 'Export & share', presentation: 'modal' }} />
+          <Stack.Screen name="feedback" options={{ title: 'Feedback' }} />
+          <Stack.Screen name="tracker" options={{ title: 'Condition tracker' }} />
 
-        {/* Development only */}
-        <Stack.Screen name="components" options={{ title: 'Components' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </IntakeProvider>
+          {/* Development only */}
+          <Stack.Screen name="components" options={{ title: 'Components' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </IntakeProvider>
+    </ProfileProvider>
   );
 }

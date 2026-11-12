@@ -1,0 +1,482 @@
+// Follow-up questions for the area picked on the body map (2.3), asked on 2.4.
+// Each area has 8 questions about where exactly it hurts, what it feels like, and
+// related symptoms, including warning signs. Questions with `when.answer` are only
+// asked after a particular earlier answer, so people usually see fewer than 8.
+// Questions without `options` use Yes / No / I don't know.
+//
+// These are a starting point written for the senior project and need review by
+// someone with clinical knowledge before real use.
+import type { FollowUpQuestion } from './content';
+
+const NONE = 'None of these';
+const INJURY_ONSET = ['After lifting, a strain or an injury', 'Suddenly, with no clear reason', 'Gradually'];
+
+export const BODY_AREA_QUESTIONS: Record<string, FollowUpQuestion[]> = {
+  head: [
+    {
+      id: 'head-where',
+      topic: 'Head',
+      question: 'Where in your head is it?',
+      summaryLabel: 'Where in the head',
+      options: ['Forehead', 'Temples (sides)', 'Behind the eyes', 'Top of the head', 'Back of the head', 'One side only', 'All over'],
+    },
+    {
+      id: 'head-feel',
+      topic: 'Head',
+      question: 'What does it feel like?',
+      summaryLabel: 'Feels like',
+      options: ['Throbbing or pulsing', 'Pressure or tightness', 'Sharp or stabbing', 'Dull ache'],
+    },
+    {
+      id: 'head-onset',
+      topic: 'Head',
+      question: 'How did it start?',
+      summaryLabel: 'How it started',
+      options: ['Suddenly, at full strength within a minute', 'Over a few hours', 'Over a few days'],
+    },
+    {
+      id: 'head-injury',
+      topic: 'Head',
+      question: 'Did you recently hit your head?',
+      summaryLabel: 'Recent head injury',
+    },
+    {
+      id: 'head-injury-signs',
+      topic: 'Head',
+      question: 'Since the injury, have you vomited, felt confused or been unusually drowsy?',
+      summaryLabel: 'Vomiting, confusion or drowsiness after injury',
+      when: { answer: { id: 'head-injury', in: ['Yes'] } },
+    },
+    {
+      id: 'head-vision',
+      topic: 'Head',
+      question: 'Any changes in your vision?',
+      summaryLabel: 'Vision changes',
+      options: ['Blurred or double vision', 'Flashing lights or zigzag lines', 'Loss of vision', 'No changes'],
+      multiple: true,
+      exclusive: 'No changes',
+    },
+    {
+      id: 'head-light',
+      topic: 'Head',
+      question: 'Do bright light or loud noise make it worse?',
+      summaryLabel: 'Worse with light or noise',
+    },
+    {
+      id: 'head-neck',
+      topic: 'Head',
+      question: 'Is your neck stiff, or is it hard to bend your chin to your chest?',
+      summaryLabel: 'Stiff neck',
+    },
+  ],
+
+  'throat-neck': [
+    {
+      id: 'tn-where',
+      topic: 'Throat / Neck',
+      question: 'Where exactly is it?',
+      summaryLabel: 'Where in the throat or neck',
+      options: ['Back of the throat', 'One side of the throat', 'Front of the neck', 'Back of the neck', 'Under the jaw'],
+    },
+    {
+      id: 'tn-swallow',
+      topic: 'Throat / Neck',
+      question: 'How is swallowing?',
+      summaryLabel: 'Swallowing',
+      options: ['Normal', 'It hurts, but I can swallow', "I can't swallow liquids or my own saliva"],
+    },
+    {
+      id: 'tn-breathing',
+      topic: 'Throat / Neck',
+      question: 'Is it hard to breathe, or does your voice sound muffled?',
+      summaryLabel: 'Trouble breathing or muffled voice',
+      when: { answer: { id: 'tn-swallow', in: ["I can't swallow liquids or my own saliva"] } },
+    },
+    {
+      id: 'tn-lump',
+      topic: 'Throat / Neck',
+      question: 'Do you feel a lump or swelling in your neck?',
+      summaryLabel: 'Lump in the neck',
+      options: ['Yes, and it is tender', "Yes, but it isn't tender", 'No'],
+    },
+    {
+      id: 'tn-lump-time',
+      topic: 'Throat / Neck',
+      question: 'How long have you noticed the lump?',
+      summaryLabel: 'Lump noticed for',
+      options: ['Less than 2 weeks', '2 weeks or more'],
+      when: { answer: { id: 'tn-lump', in: ['Yes, and it is tender', "Yes, but it isn't tender"] } },
+    },
+    {
+      id: 'tn-cold',
+      topic: 'Throat / Neck',
+      question: 'Do you also have any of these?',
+      summaryLabel: 'Cold symptoms',
+      options: ['Runny or stuffy nose', 'Cough', 'Sneezing', 'Ear pain', NONE],
+      multiple: true,
+      exclusive: NONE,
+    },
+    {
+      id: 'tn-neck-move',
+      topic: 'Throat / Neck',
+      question: 'Is it hard to move your neck, especially to bend your chin to your chest?',
+      summaryLabel: 'Hard to move the neck',
+    },
+    {
+      id: 'tn-contacts',
+      topic: 'Throat / Neck',
+      question: 'Has anyone close to you had a sore throat recently?',
+      summaryLabel: 'Sick contacts',
+    },
+  ],
+
+  chest: [
+    {
+      id: 'ch-where',
+      topic: 'Chest',
+      question: 'Where in your chest is it?',
+      summaryLabel: 'Where in the chest',
+      options: ['Center, behind the breastbone', 'Left side', 'Right side', 'All over', 'Hard to point to'],
+    },
+    {
+      id: 'ch-feel',
+      topic: 'Chest',
+      question: 'What does it feel like?',
+      summaryLabel: 'Feels like',
+      options: ['Pressure, squeezing or heaviness', 'Sharp or stabbing', 'Burning', 'Ache or soreness'],
+    },
+    {
+      id: 'ch-spread',
+      topic: 'Chest',
+      question: 'Does it spread anywhere?',
+      summaryLabel: 'Spreads to',
+      options: ['Left arm', 'Jaw or neck', 'Back', "It doesn't spread"],
+      multiple: true,
+      exclusive: "It doesn't spread",
+      covers: ['chest-pain-spread'],
+    },
+    {
+      id: 'ch-with',
+      topic: 'Chest',
+      question: 'Along with it, do you have any of these?',
+      summaryLabel: 'Along with chest symptoms',
+      options: ['Sweating', 'Nausea', 'Shortness of breath', 'Feeling faint', NONE],
+      multiple: true,
+      exclusive: NONE,
+    },
+    {
+      id: 'ch-exertion',
+      topic: 'Chest',
+      question: 'Does it get worse with activity and ease when you rest?',
+      summaryLabel: 'Worse with activity',
+    },
+    {
+      id: 'ch-breath-press',
+      topic: 'Chest',
+      question: 'Does it hurt more when you breathe in deeply or press on the spot?',
+      summaryLabel: 'Worse with breathing or pressing',
+      options: ['When I breathe in', 'When I press on it', 'Both', 'Neither'],
+    },
+    {
+      id: 'ch-food',
+      topic: 'Chest',
+      question: 'Is the burning worse after eating or when lying down?',
+      summaryLabel: 'Burning worse after eating or lying down',
+      when: { answer: { id: 'ch-feel', in: ['Burning'] } },
+    },
+    {
+      id: 'ch-history',
+      topic: 'Chest',
+      question: 'Have you had a heart problem before?',
+      summaryLabel: 'Previous heart problem',
+    },
+  ],
+
+  abdomen: [
+    {
+      id: 'ab-where',
+      topic: 'Abdomen',
+      question: 'Where in your belly is it?',
+      summaryLabel: 'Where in the belly',
+      options: [
+        'Upper right', 'Upper middle', 'Upper left', 'Around the belly button',
+        'Lower right', 'Lower middle', 'Lower left', 'All over',
+      ],
+    },
+    {
+      id: 'ab-moved',
+      topic: 'Abdomen',
+      question: 'Has the pain moved since it started?',
+      summaryLabel: 'Pain moved',
+      options: ['Yes, to the lower right', 'Yes, somewhere else', 'No'],
+    },
+    {
+      id: 'ab-feel',
+      topic: 'Abdomen',
+      question: 'What does it feel like?',
+      summaryLabel: 'Feels like',
+      options: ['Cramping that comes and goes', 'Constant ache', 'Sharp or stabbing', 'Burning'],
+    },
+    {
+      id: 'ab-food',
+      topic: 'Abdomen',
+      question: 'Does eating change it?',
+      summaryLabel: 'Effect of eating',
+      options: ['Worse after eating', 'Better after eating', 'No change'],
+    },
+    {
+      id: 'ab-bowel',
+      topic: 'Abdomen',
+      question: 'Any changes in your bowel movements?',
+      summaryLabel: 'Bowel changes',
+      options: ['Diarrhea', 'Constipation', 'Blood, or black and tarry stool', NONE],
+      multiple: true,
+      exclusive: NONE,
+    },
+    {
+      id: 'ab-vomit',
+      topic: 'Abdomen',
+      question: 'Are you vomiting?',
+      summaryLabel: 'Vomiting',
+      options: ['Yes', 'I feel sick but haven’t vomited', 'No'],
+    },
+    {
+      id: 'ab-vomit-blood',
+      topic: 'Abdomen',
+      question: 'Is there blood in the vomit, or does it look like coffee grounds?',
+      summaryLabel: 'Blood in vomit',
+      when: { answer: { id: 'ab-vomit', in: ['Yes'] } },
+    },
+    {
+      id: 'ab-urine',
+      topic: 'Abdomen',
+      question: 'Does it hurt or burn when you pee?',
+      summaryLabel: 'Pain when peeing',
+    },
+  ],
+
+  'upper-back': [
+    {
+      id: 'ub-where',
+      topic: 'Upper back',
+      question: 'Where in your upper back is it?',
+      summaryLabel: 'Where in the upper back',
+      options: ['Between the shoulder blades', 'Left side', 'Right side', 'Along the spine', 'All over'],
+    },
+    {
+      id: 'ub-start',
+      topic: 'Upper back',
+      question: 'How did it start?',
+      summaryLabel: 'How it started',
+      options: INJURY_ONSET,
+    },
+    {
+      id: 'ub-tearing',
+      topic: 'Upper back',
+      question: 'Is the pain severe and feels like tearing or ripping?',
+      summaryLabel: 'Tearing or ripping pain',
+      when: { answer: { id: 'ub-start', in: ['Suddenly, with no clear reason'] } },
+    },
+    {
+      id: 'ub-move',
+      topic: 'Upper back',
+      question: 'Does moving or twisting make it worse?',
+      summaryLabel: 'Worse with movement',
+    },
+    {
+      id: 'ub-breath',
+      topic: 'Upper back',
+      question: 'Does it hurt more when you breathe in deeply?',
+      summaryLabel: 'Worse with deep breaths',
+    },
+    {
+      id: 'ub-chest',
+      topic: 'Upper back',
+      question: 'Do you also have chest pain or shortness of breath?',
+      summaryLabel: 'Chest pain or shortness of breath',
+    },
+    {
+      id: 'ub-arms',
+      topic: 'Upper back',
+      question: 'Any numbness, tingling or weakness in your arms?',
+      summaryLabel: 'Arm numbness or weakness',
+    },
+    {
+      id: 'ub-night',
+      topic: 'Upper back',
+      question: 'Does the pain wake you up at night?',
+      summaryLabel: 'Wakes you at night',
+    },
+  ],
+
+  'lower-back': [
+    {
+      id: 'lb-where',
+      topic: 'Lower back',
+      question: 'Where in your lower back is it?',
+      summaryLabel: 'Where in the lower back',
+      options: ['Center', 'Left side', 'Right side', 'Both sides', 'Just above the buttocks'],
+    },
+    {
+      id: 'lb-start',
+      topic: 'Lower back',
+      question: 'How did it start?',
+      summaryLabel: 'How it started',
+      options: INJURY_ONSET,
+    },
+    {
+      id: 'lb-leg',
+      topic: 'Lower back',
+      question: 'Does the pain spread down your leg?',
+      summaryLabel: 'Spreads down the leg',
+      options: ['Yes, below the knee', 'Yes, but not below the knee', 'No'],
+    },
+    {
+      id: 'lb-weakness',
+      topic: 'Lower back',
+      question: 'Any new weakness in your legs?',
+      summaryLabel: 'New leg weakness',
+    },
+    {
+      id: 'lb-bladder',
+      topic: 'Lower back',
+      question: 'Any trouble controlling your bladder or bowels, or numbness around your groin?',
+      summaryLabel: 'Bladder or bowel control, groin numbness',
+    },
+    {
+      id: 'lb-urine',
+      topic: 'Lower back',
+      question: 'Does it hurt when you pee, or is there blood in your urine?',
+      summaryLabel: 'Pain peeing or blood in urine',
+    },
+    {
+      id: 'lb-waves',
+      topic: 'Lower back',
+      question: 'Does the pain come in waves that make it hard to stay still?',
+      summaryLabel: 'Pain in waves',
+      when: { answer: { id: 'lb-urine', in: ['Yes'] } },
+    },
+    {
+      id: 'lb-rest',
+      topic: 'Lower back',
+      question: 'Does it get better when you rest or lie down?',
+      summaryLabel: 'Better with rest',
+    },
+  ],
+
+  arms: [
+    {
+      id: 'ar-side',
+      topic: 'Arms & hands',
+      question: 'Which arm?',
+      summaryLabel: 'Which arm',
+      options: ['Left', 'Right', 'Both'],
+    },
+    {
+      id: 'ar-where',
+      topic: 'Arms & hands',
+      question: 'Where on the arm? Select all that apply.',
+      summaryLabel: 'Where on the arm',
+      options: ['Shoulder', 'Upper arm', 'Elbow', 'Forearm', 'Wrist', 'Hand or fingers'],
+      multiple: true,
+    },
+    {
+      id: 'ar-injury',
+      topic: 'Arms & hands',
+      question: 'Did you injure it?',
+      summaryLabel: 'Injury',
+      options: ['Yes', 'No'],
+    },
+    {
+      id: 'ar-deformed',
+      topic: 'Arms & hands',
+      question: 'Does it look bent or out of place, or are you unable to move it?',
+      summaryLabel: 'Looks out of place or can’t move',
+      when: { answer: { id: 'ar-injury', in: ['Yes'] } },
+    },
+    {
+      id: 'ar-swelling',
+      topic: 'Arms & hands',
+      question: 'Is the area red, warm or swollen?',
+      summaryLabel: 'Red, warm or swollen',
+    },
+    {
+      id: 'ar-numb',
+      topic: 'Arms & hands',
+      question: 'Any numbness or tingling?',
+      summaryLabel: 'Numbness or tingling',
+    },
+    {
+      id: 'ar-chest',
+      topic: 'Arms & hands',
+      question: 'Do you also have chest pain, pressure or shortness of breath?',
+      summaryLabel: 'Chest pain or shortness of breath',
+      when: { answer: { id: 'ar-side', in: ['Left', 'Both'] } },
+    },
+    {
+      id: 'ar-move',
+      topic: 'Arms & hands',
+      question: 'Does moving the joint make it worse?',
+      summaryLabel: 'Worse when moving the joint',
+    },
+  ],
+
+  legs: [
+    {
+      id: 'lg-side',
+      topic: 'Legs & feet',
+      question: 'Which leg?',
+      summaryLabel: 'Which leg',
+      options: ['Left', 'Right', 'Both'],
+    },
+    {
+      id: 'lg-where',
+      topic: 'Legs & feet',
+      question: 'Where on the leg? Select all that apply.',
+      summaryLabel: 'Where on the leg',
+      options: ['Hip', 'Thigh', 'Knee', 'Calf', 'Ankle', 'Foot or toes'],
+      multiple: true,
+    },
+    {
+      id: 'lg-injury',
+      topic: 'Legs & feet',
+      question: 'Did you injure it?',
+      summaryLabel: 'Injury',
+      options: ['Yes', 'No'],
+    },
+    {
+      id: 'lg-weight',
+      topic: 'Legs & feet',
+      question: 'Can you put weight on it and take four steps?',
+      summaryLabel: 'Can bear weight',
+      options: ['Yes', 'No'],
+      when: { answer: { id: 'lg-injury', in: ['Yes'] } },
+    },
+    {
+      id: 'lg-swelling',
+      topic: 'Legs & feet',
+      question: 'Is one leg more swollen, warm or red than the other?',
+      summaryLabel: 'One leg swollen, warm or red',
+    },
+    {
+      id: 'lg-risk',
+      topic: 'Legs & feet',
+      question: 'Recently, have you had a long trip, surgery, or spent a lot of time in bed?',
+      summaryLabel: 'Long trip, surgery or bed rest',
+      when: { answer: { id: 'lg-swelling', in: ['Yes'] } },
+    },
+    {
+      id: 'lg-breath',
+      topic: 'Legs & feet',
+      question: 'Are you short of breath, or do you have chest pain?',
+      summaryLabel: 'Short of breath or chest pain',
+      when: { answer: { id: 'lg-swelling', in: ['Yes'] } },
+    },
+    {
+      id: 'lg-numb',
+      topic: 'Legs & feet',
+      question: 'Any numbness, tingling or weakness?',
+      summaryLabel: 'Numbness, tingling or weakness',
+    },
+  ],
+};
