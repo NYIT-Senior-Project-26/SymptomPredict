@@ -81,6 +81,8 @@ class TriageResult(BaseModel):
                 raise ValueError("emergency results must not allow medication guidance")
             if any(c.assistant_available for c in self.conditions):
                 raise ValueError("assistant chat is disabled for emergency results")
+        elif not self.conditions:
+            raise ValueError(f"{self.triage_level} results need at least one condition")
 
         if self.triage_level != "self_care" and self.warning_signs:
             raise ValueError("warning_signs are only shown for self_care results")
