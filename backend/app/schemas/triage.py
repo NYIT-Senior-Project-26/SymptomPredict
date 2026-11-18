@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID, uuid4
-
 from pydantic import BaseModel, Field, computed_field, model_validator
+from shared import Demographic, Symptom
 
 # These map 1:1 to the three Figma banners.
 TriageLevel = Literal["emergency", "appointment", "self_care"]
@@ -19,8 +19,6 @@ class SymptomEvidence(BaseModel):
     present: bool = True
 
 class ConditionMatch(BaseModel):
-    # One card in Possible Conditions
-
     rank: int = Field(ge=1, le=5)
     name: str
     short_description: str = Field(max_length=200)
@@ -88,3 +86,7 @@ class TriageResult(BaseModel):
             raise ValueError("warning_signs are only shown for self_care results")
 
         return self
+
+class TriageRequest(BaseModel):
+    demographics: Demographic
+    symptoms: list[Symptom] = Field(min_length=1)
