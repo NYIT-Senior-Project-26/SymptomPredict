@@ -3,11 +3,8 @@ from ml_layer.data import disease_profiles
 from shared import ConditionScore, Symptom
 from triage.red_flags import EMERGENCY_HEADLINE, RedFlagMatch
 
-
 def _label(symptom_name: str) -> str:
     return symptom_name.capitalize().replace('_', ' ')
-
-
 
 def _condition_cards(predictions: list[ConditionScore], symptoms: list[Symptom]) -> list[ConditionMatch]:
     profiles = disease_profiles()
