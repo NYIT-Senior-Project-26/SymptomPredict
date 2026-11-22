@@ -3,10 +3,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Chip } from '@/components/Chip';
 import { Icon } from '@/components/Icon';
-import { Eyebrow, IntakeFooter, IntakeLayout, Title, useIntakeNext } from '@/components/intake';
+import { Eyebrow, IntakeFooter, IntakeLayout, Title, useIntakeNext } from '@/intake/components';
 import { DURATIONS, getFollowUps, questionNumbers, SEVERITIES, TRENDS } from '@/intake/content';
-import { useIntake } from '@/state/intake';
-import { colors, fonts } from '@/theme';
+import { useIntake } from '@/intake/state';
+import { card, colors, fonts } from '@/theme';
 
 const KNOB = 26;
 
@@ -91,15 +91,7 @@ export default function Severity() {
 }
 
 const styles = StyleSheet.create({
-  sliderCard: {
-    gap: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 20,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  sliderCard: { ...card, gap: 16, paddingHorizontal: 18, paddingVertical: 20 },
   track: { height: 8, marginTop: 9, borderRadius: 4, backgroundColor: colors.borderDefault },
   fill: { height: 8, borderRadius: 4, backgroundColor: colors.brandPrimary },
   knob: { position: 'absolute', top: -9, marginLeft: -KNOB / 2 },

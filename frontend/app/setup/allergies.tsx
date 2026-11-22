@@ -3,11 +3,11 @@ import { useRef, useState } from 'react';
 import { StyleSheet, TextInputInstance, View } from 'react-native';
 
 import { Chip } from '@/components/Chip';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
-import { AddLink, FieldLabel, ListCard, ProfileProgress } from '@/components/profile';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
+import { AddLink, FieldLabel, ListCard, ProfileProgress } from '@/profile/components';
 import { SearchField } from '@/components/TextField';
 import { ALLERGY_CATEGORIES, AllergyCategory } from '@/profile/content';
-import { useProfile } from '@/state/profile';
+import { useProfile } from '@/profile/state';
 import { colors } from '@/theme';
 
 // 1.4 Profile · Allergies

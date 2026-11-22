@@ -1,6 +1,6 @@
-import { SymptomInput } from '../api/client';
-import { IntakeAnswers } from '../state/intake';
-import { Profile } from '../state/profile';
+import { SymptomInput } from '@/api/client';
+import { IntakeAnswers } from './state';
+import { Profile } from '@/profile/state';
 import {
   answerValues,
   DURATIONS,

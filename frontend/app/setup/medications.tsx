@@ -3,10 +3,10 @@ import { useRef, useState } from 'react';
 import { Alert, TextInputInstance } from 'react-native';
 
 import { Button } from '@/components/Button';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
-import { AddLink, ListCard, ProfileProgress } from '@/components/profile';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
+import { AddLink, ListCard, ProfileProgress } from '@/profile/components';
 import { SearchField } from '@/components/TextField';
-import { useProfile } from '@/state/profile';
+import { useProfile } from '@/profile/state';
 import { colors } from '@/theme';
 
 // 1.5 Profile · Medications

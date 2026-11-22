@@ -56,10 +56,20 @@ def test_predict_returns_ranking_and_unmatched(monkeypatch):
     async def fake_claude(data, ranking):
         seen["ranking"] = ranking
         return PredictionResult(
-            conditions=[{"name": "Fungal infection", "likelihood": "high", "rationale": "Itchy rash."}],
+            conditions=[
+                {
+                    "name": "Fungal infection",
+                    "likelihood": "high",
+                    "description": "A skin infection caused by fungus.",
+                    "matching_symptoms": ["Rash", "Itching"],
+                    "rationale": "Itchy rash.",
+                }
+            ],
             urgency="self_care",
+            next_step="Treat it at home",
             recommended_specialty="Dermatology",
             advice="Keep the area dry.",
+            warning_signs=["Rash spreads quickly"],
         )
 
     monkeypatch.setattr(engine, "analyze_symptoms", fake_claude)

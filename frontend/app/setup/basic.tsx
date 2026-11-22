@@ -2,11 +2,11 @@ import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { Chip } from '@/components/Chip';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
-import { FieldLabel, ProfileProgress } from '@/components/profile';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
+import { FieldLabel, ProfileProgress } from '@/profile/components';
 import { TextField } from '@/components/TextField';
 import { BLOOD_PRESSURES, SEXES, SMOKING_STATUSES } from '@/profile/content';
-import { useProfile } from '@/state/profile';
+import { useProfile } from '@/profile/state';
 
 // 1.3 Profile · Basic info
 export default function BasicInfo() {

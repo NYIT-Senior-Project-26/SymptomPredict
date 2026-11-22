@@ -2,7 +2,7 @@ import { Href, router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
 import {
   DURATIONS,
   formatAnswer,
@@ -14,9 +14,9 @@ import {
   TRENDS,
 } from '@/intake/content';
 import { highRiskSummary } from '@/intake/request';
-import { useIntake } from '@/state/intake';
-import { hasHealthDetails, healthDetailsSummary, useProfile } from '@/state/profile';
-import { colors, fonts } from '@/theme';
+import { useIntake } from '@/intake/state';
+import { hasHealthDetails, healthDetailsSummary, useProfile } from '@/profile/state';
+import { card, colors, fonts } from '@/theme';
 
 interface Row {
   label: string;
@@ -106,14 +106,7 @@ export default function Summary() {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  card: { ...card, paddingHorizontal: 16, paddingVertical: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   rowDivider: { borderBottomWidth: 1, borderBottomColor: colors.borderDefault },
   rowText: { flex: 1, gap: 2 },

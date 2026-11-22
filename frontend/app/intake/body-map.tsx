@@ -11,7 +11,7 @@ import {
   Subtitle,
   Title,
   useIntakeNext,
-} from '@/components/intake';
+} from '@/intake/components';
 import {
   afterStageOne,
   answerValues,
@@ -21,7 +21,7 @@ import {
   getBodyArea,
   getBodyMapQuestions,
 } from '@/intake/content';
-import { useIntake } from '@/state/intake';
+import { useIntake } from '@/intake/state';
 import { colors, fonts } from '@/theme';
 
 const SIDES: { id: BodySide; label: string }[] = [
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   dimLeft: { left: 0 },
   dimRight: { right: 0 },
   region: { position: 'absolute', borderRadius: 8 },
-  regionSelected: { backgroundColor: 'rgba(57,107,118,0.2)' }, // brandPrimary at 20%
+  regionSelected: { backgroundColor: colors.brandPrimaryTint },
   selectedRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   selectedLabel: { fontFamily: fonts.regular, fontSize: 14, color: colors.textSecondary },
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: colors.triageGreenBg },

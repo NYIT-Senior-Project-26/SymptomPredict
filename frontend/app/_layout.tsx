@@ -9,8 +9,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { HeaderBack } from '@/components/HeaderBack';
-import { IntakeProvider } from '@/state/intake';
-import { ProfileProvider } from '@/state/profile';
+import { IntakeProvider } from '@/intake/state';
+import { ProfileProvider } from '@/profile/state';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -71,7 +71,7 @@ export default function RootLayout() {
           />
 
           {/* 3 · Results & Care */}
-          <Stack.Screen name="results/index" options={{ title: 'Your result', headerBackVisible: false }} />
+          <Stack.Screen name="results/index" options={{ title: 'Your results', headerBackVisible: false }} />
           <Stack.Screen name="results/emergency" options={{ title: 'Get help now' }} />
           <Stack.Screen name="results/providers" options={{ title: 'Providers near you' }} />
           <Stack.Screen name="results/pharmacy" options={{ title: 'Pharmacy & OTC' }} />

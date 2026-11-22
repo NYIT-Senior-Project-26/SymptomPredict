@@ -5,7 +5,7 @@ import { colors, fonts } from '@/theme';
 import { Icon } from './Icon';
 
 // Border color of the "Input Field" in Figma's starter design system; not in our theme.
-const FIELD_BORDER = '#d9d9d9';
+const FIELD_BORDER = colors.borderField;
 
 /** "Input Field" in Figma: a label above a single-line input. */
 export function TextField({ label, ...input }: TextInputProps & { label: string }) {

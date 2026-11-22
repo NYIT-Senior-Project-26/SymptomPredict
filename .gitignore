@@ -1,9 +1,23 @@
+# One .gitignore for the whole project (backend and frontend).
+
+# Secrets: the single .env at the repo root (see .env.example)
+.env
+
+# Python (backend)
 .venv
 __pycache__/
 *.pyc
-.DS_Store
-.env
 .pytest_cache/
+# Trained models: each machine trains its own (python -m ml_layer.train_model)
 *.pkl
-backend/ml-layer/results/
-backend/ml-layer/tests/
+backend/ml_layer/results/
+
+# Node / Expo (frontend)
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+
+# OS
+.DS_Store

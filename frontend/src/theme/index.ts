@@ -24,17 +24,38 @@ export const palette = {
 export const colors = {
   brandPrimary: '#396b76',
   brandPrimaryLight: '#e3f2f4',
+  /** brandPrimary at 20%, e.g. a selected area on the body map. */
+  brandPrimaryTint: 'rgba(57,107,118,0.2)',
   textPrimary: '#1e1e1e',
   textSecondary: '#656565',
   textOnPrimary: '#ffffff',
+  /** Label color on the standard Button. */
+  buttonLabel: '#f5f5f5',
   bgSurface: '#ffffff',
+  /** Light grey fill, e.g. the "Low likelihood" badge. */
+  bgMuted: '#f2f3f5',
+  /** Inset panels inside cards, e.g. "Why this match" on 3.1 ("bg/canvas" in Figma). */
+  bgCanvas: '#f5f7f8',
+  /** Backdrop behind a sheet, e.g. the PDF preview on 4.5. */
+  bgBackdrop: '#242424',
   borderDefault: '#e3e5e8',
+  /** Border of text inputs (TextField). */
+  borderField: '#d9d9d9',
   triageGreen: '#2e7d4f',
   triageGreenBg: '#e3f4ea',
   triageYellow: '#a86b00',
   triageYellowBg: '#fff3d6',
   triageRed: '#c62828',
   triageRedBg: '#fde7e7',
+} as const;
+
+/** The bordered white card used across screens. Spread it into a style: `{ ...card, gap: 10 }`. */
+export const card = {
+  padding: 16,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: colors.borderDefault,
+  backgroundColor: colors.bgSurface,
 } as const;
 
 /** Inter weights used in the design; loaded in app/_layout.tsx. */

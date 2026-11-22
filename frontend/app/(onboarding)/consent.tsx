@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
+import { Checkbox } from '@/components/Checkbox';
 import { Icon, IconName } from '@/components/Icon';
-import { colors, fonts } from '@/theme';
+import { ScreenLayout } from '@/components/ScreenLayout';
+import { card, colors, fonts } from '@/theme';
 
 // The app has no accounts and saves nothing, so these points describe that
 // rather than the storage claims in the Figma frame (see PROGRESS.md).
@@ -29,7 +30,6 @@ const POINTS: { icon: IconName; title: string; description: string }[] = [
 
 // 1.2 Privacy & Data Consent
 export default function Consent() {
-  const insets = useSafeAreaInsets();
   const [terms, setTerms] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -38,9 +38,26 @@ export default function Consent() {
   }
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">
+    <ScreenLayout
+      contentStyle={styles.content}
+      footerStyle={styles.footer}
+      footer={
+        <>
+          <Checkbox
+            label="I agree to the Terms of Service and Privacy Policy"
+            checked={terms}
+            onPress={() => setTerms(!terms)}
+          />
+          <Checkbox
+            label="I consent to DiagnosisCloud processing my health information"
+            checked={processing}
+            onPress={() => setProcessing(!processing)}
+          />
+          <Button label="Agree & continue" disabled={!terms || !processing} onPress={onAgree} />
+        </>
+      }
+    >
+      <Text style={styles.title} accessibilityRole="header">
           Your health data stays private
         </Text>
         <Text style={styles.subtitle}>
@@ -67,54 +84,15 @@ export default function Consent() {
             DiagnosisCloud does not replace professional medical advice. In an emergency, call 911.
           </Text>
         </View>
-      </ScrollView>
-
-      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}>
-        <Checkbox
-          label="I agree to the Terms of Service and Privacy Policy"
-          checked={terms}
-          onPress={() => setTerms(!terms)}
-        />
-        <Checkbox
-          label="I consent to DiagnosisCloud processing my health information"
-          checked={processing}
-          onPress={() => setProcessing(!processing)}
-        />
-        <Button label="Agree & continue" disabled={!terms || !processing} onPress={onAgree} />
-      </View>
-    </View>
-  );
-}
-
-function Checkbox({ label, checked, onPress }: { label: string; checked: boolean; onPress: () => void }) {
-  return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
-      onPress={onPress}
-      style={styles.checkRow}
-    >
-      <View style={[styles.box, checked && styles.boxChecked]}>
-        {checked && <Icon name="check-small" size={14} color={colors.textOnPrimary} />}
-      </View>
-      <Text style={styles.checkLabel}>{label}</Text>
-    </Pressable>
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bgSurface },
   content: { gap: 18, paddingTop: 12, paddingHorizontal: 24, paddingBottom: 18 },
   title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 30, color: colors.textPrimary },
   subtitle: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 14 * 1.45, color: colors.textSecondary },
-  card: {
-    gap: 18,
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  card: { ...card, gap: 18 },
   point: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   pointIcon: {
     width: 40,
@@ -137,18 +115,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.triageYellowBg,
   },
   bannerText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 13 * 1.45, color: colors.textPrimary },
-  footer: { gap: 18, paddingTop: 12, paddingHorizontal: 24, backgroundColor: colors.bgSurface },
-  checkRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  box: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxChecked: { borderColor: colors.brandPrimary, backgroundColor: colors.brandPrimary },
-  checkLabel: { flex: 1, fontFamily: fonts.regular, fontSize: 14, lineHeight: 14 * 1.45, color: colors.textPrimary },
+  footer: { gap: 18 },
 });

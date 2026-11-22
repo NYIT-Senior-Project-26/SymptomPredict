@@ -62,10 +62,10 @@ const styles = StyleSheet.create({
 const VARIANTS = {
   primary: {
     iconSize: 16,
-    contentColor: '#f5f5f5',
+    contentColor: colors.buttonLabel,
     ...StyleSheet.create({
       container: { borderColor: colors.brandPrimary, padding: 12, gap: 8 },
-      label: { fontFamily: fonts.regular, fontSize: 16, lineHeight: 16, color: '#f5f5f5' },
+      label: { fontFamily: fonts.regular, fontSize: 16, lineHeight: 16, color: colors.buttonLabel },
     }),
   },
   hero: {

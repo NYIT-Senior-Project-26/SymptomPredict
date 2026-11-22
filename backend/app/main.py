@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import medications, predict, providers, telehealth, triage
+from app.api.routes import conditions, medications, predict, providers, telehealth, triage
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (predict.router, triage.router, providers.router, medications.router, telehealth.router):
+for r in (predict.router, triage.router, conditions.router, providers.router, medications.router, telehealth.router):
     app.include_router(r, prefix="/api/v1")
 
 
