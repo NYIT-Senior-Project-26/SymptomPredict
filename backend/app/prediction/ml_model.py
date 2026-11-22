@@ -1,39 +1,45 @@
-"""Local ML model: a fast first-pass ranking of likely conditions.
+"""First-pass ranking of likely conditions from the LightGBM model in ml_layer/.
 
-Train a scikit-learn classifier (symptoms -> condition) and save it to
-models/symptom_model.joblib as {"model": clf, "vocab": [symptom, ...]}.
-Until a model exists, predict() returns an empty list and Claude does the work alone.
+Train it once per machine, from backend/:  python -m ml_layer.train_model
+Until the model file exists, rank() returns no candidates and Claude does the work alone.
 """
 
-from pathlib import Path
+import logging
+from dataclasses import dataclass, field
 
-import joblib
-import numpy as np
+from app.prediction.symptom_map import match_symptoms
+from shared import ConditionScore
 
-MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "symptom_model.joblib"
-
-
-class SymptomModel:
-    def __init__(self, path: Path = MODEL_PATH):
-        self._model = None
-        self._vocab: list[str] = []
-        if path.exists():
-            bundle = joblib.load(path)
-            self._model = bundle["model"]
-            self._vocab = bundle["vocab"]
-
-    @property
-    def loaded(self) -> bool:
-        return self._model is not None
-
-    def predict(self, symptoms: list[str], top_k: int = 5) -> list[tuple[str, float]]:
-        if not self.loaded:
-            return []
-        wanted = {s.strip().lower() for s in symptoms}
-        x = np.array([[1 if v in wanted else 0 for v in self._vocab]])
-        probs = self._model.predict_proba(x)[0]
-        ranked = sorted(zip(self._model.classes_, probs), key=lambda p: p[1], reverse=True)
-        return [(str(c), float(p)) for c, p in ranked[:top_k]]
+logger = logging.getLogger(__name__)
 
 
-symptom_model = SymptomModel()
+@dataclass
+class Ranking:
+    available: bool = False  # False when the model isn't trained or can't load
+    candidates: list[ConditionScore] = field(default_factory=list)
+    used: list[str] = field(default_factory=list)  # dataset symptoms the ranking is based on
+    matched: list[str] = field(default_factory=list)  # reported symptoms the model could use
+    unmatched: list[str] = field(default_factory=list)  # reported symptoms the model never saw
+
+
+def _load():
+    try:
+        from ml_layer.model import load_model
+
+        return load_model()
+    except (ImportError, FileNotFoundError) as e:
+        # Only the reason is logged, never the symptoms (see BUILD_STATUS.md: no health data in logs)
+        logger.warning("ML model unavailable, Claude will analyze alone: %s", e)
+        return None
+
+
+def rank(symptoms: list[str], follow_up_answers: dict[str, list[str]], top_k: int = 5) -> Ranking:
+    model = _load()
+    if model is None:
+        return Ranking(unmatched=[s.strip() for s in symptoms if s.strip()])
+
+    from ml_layer.model import top_k_predictions
+
+    m = match_symptoms(symptoms, follow_up_answers, set(model.feature_names_in_))
+    candidates = top_k_predictions(m.keys, top_k, model=model) if m.keys else []
+    return Ranking(True, candidates, m.keys, m.matched, m.unmatched)
