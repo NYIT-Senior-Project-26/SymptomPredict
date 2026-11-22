@@ -2,6 +2,7 @@ import { SymptomInput } from '../api/client';
 import { IntakeAnswers } from '../state/intake';
 import { Profile } from '../state/profile';
 import {
+  answerValues,
   DURATIONS,
   formatAnswer,
   getAllFollowUps,
@@ -28,9 +29,13 @@ export function buildPredictInput(answers: IntakeAnswers, profile: Profile): Sym
   const age = parseInt(profile.age, 10);
 
   const notes: string[] = [];
+  // The backend matches these to the ML model's symptoms; the full text also goes in notes.
+  const followUpAnswers: Record<string, string[]> = {};
   if (complaint) notes.push(`In their words: ${complaint}`);
   if (area) notes.push(`Body area: ${area.label}`);
   for (const q of getAllFollowUps(answers)) {
+    const values = answerValues(answers.followUps[q.id]);
+    if (values.length > 0) followUpAnswers[q.id] = values;
     const answer = formatAnswer(answers.followUps[q.id]);
     if (answer) notes.push(`${q.question} ${answer}`);
   }
@@ -51,6 +56,7 @@ export function buildPredictInput(answers: IntakeAnswers, profile: Profile): Sym
 
   return {
     symptoms,
+    follow_up_answers: followUpAnswers,
     age: age >= 0 && age <= 120 ? age : undefined,
     sex: profile.sex ? API_SEX[profile.sex] : undefined,
     duration_days: duration?.days,

@@ -66,8 +66,29 @@ export default function TriageResult() {
         </View>
       ))}
       <Text style={styles.advice}>{result.advice}</Text>
+      <ModelRanking result={result} />
       <Text style={styles.disclaimer}>{result.disclaimer}</Text>
     </ScreenPlaceholder>
+  );
+}
+
+/** The ML model's ranking that Claude was given. Unstyled until the 3.1 design is built. */
+function ModelRanking({ result }: { result: PredictionResult }) {
+  return (
+    <View style={styles.condition}>
+      <Text style={styles.conditionName}>Model ranking</Text>
+      <Text style={styles.body}>
+        Symptoms used: {result.model_symptoms.length > 0 ? result.model_symptoms.join(', ') : 'none matched the model'}
+      </Text>
+      {result.unmatched_symptoms.length > 0 && (
+        <Text style={styles.body}>Not in the model: {result.unmatched_symptoms.join(', ')}</Text>
+      )}
+      {result.model_candidates.map((c) => (
+        <Text key={c.name} style={styles.body}>
+          {c.name} · {c.match_score}%
+        </Text>
+      ))}
+    </View>
   );
 }
 
