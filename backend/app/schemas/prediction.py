@@ -26,6 +26,11 @@ class Condition(BaseModel):
 
     name: str
     likelihood: Literal["low", "medium", "high"]
+    # One plain sentence on what the condition is (the card's description in Figma 3.1)
+    description: str
+    # Reported symptoms that fit this condition, as short labels ("Fever", "No cough")
+    matching_symptoms: list[str]
+    # Why it fits this person's answers ("Why this match" in Figma 3.1)
     rationale: str
 
 
@@ -34,8 +39,12 @@ class PredictionResult(BaseModel):
 
     conditions: list[Condition]
     urgency: Literal["self_care", "see_doctor", "urgent_care", "emergency"]
+    # Short headline for "What to do next", e.g. "See a doctor within 24–48 hours"
+    next_step: str
     recommended_specialty: str
     advice: str
+    # Self-care only: when to see a doctor instead ("See a doctor if you notice"); else empty
+    warning_signs: list[str]
     disclaimer: str = (
         "This is not a medical diagnosis. Consult a licensed clinician. "
         "If you think you have an emergency, call 911."

@@ -2,9 +2,9 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
-import { CheckboxRow, Eyebrow, IntakeFooter, IntakeLayout, Subtitle, Title, useIntakeNext } from '@/components/intake';
+import { CheckboxRow, Eyebrow, IntakeFooter, IntakeLayout, Subtitle, Title, useIntakeNext } from '@/intake/components';
 import { getFollowUps, HIGH_RISK_OPTIONS, HighRiskId, questionNumbers } from '@/intake/content';
-import { useIntake } from '@/state/intake';
+import { useIntake } from '@/intake/state';
 import { colors, fonts } from '@/theme';
 
 // 2.6 Intake · Stage 2 High-risk check

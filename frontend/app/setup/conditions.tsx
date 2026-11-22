@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Chip } from '@/components/Chip';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
-import { ProfileProgress } from '@/components/profile';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
+import { ProfileProgress } from '@/profile/components';
 import { SearchField } from '@/components/TextField';
 import { CONDITIONS } from '@/profile/content';
-import { useProfile } from '@/state/profile';
+import { useProfile } from '@/profile/state';
 
 // 1.6 Profile · Ongoing conditions.
 // Figma's note about unlocking the Chronic Condition Tracker is left out: the tracker

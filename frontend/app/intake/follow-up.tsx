@@ -2,10 +2,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
-import { AnswerOptions, IntakeFooter, IntakeLayout, useIntakeNext } from '@/components/intake';
+import { AnswerOptions, IntakeFooter, IntakeLayout, useIntakeNext } from '@/intake/components';
 import { answerValues, formatAnswer, getFollowUps, questionNumbers } from '@/intake/content';
-import { useIntake } from '@/state/intake';
-import { colors, fonts } from '@/theme';
+import { useIntake } from '@/intake/state';
+import { card, colors, fonts } from '@/theme';
 
 // 2.4 Intake · Stage 2 Follow-up question. One screen per question: /intake/follow-up?q=<index>.
 // The body-area questions (and fever) are asked on the body map instead; see getFollowUps.
@@ -79,14 +79,7 @@ const styles = StyleSheet.create({
   userBubble: { alignSelf: 'flex-end', backgroundColor: colors.brandPrimary },
   botText: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 14 * 1.45, color: colors.textPrimary },
   userText: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 14 * 1.45, color: colors.textOnPrimary },
-  questionCard: {
-    gap: 10,
-    padding: 20,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  questionCard: { ...card, gap: 10, padding: 20 },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   eyebrow: { fontFamily: fonts.semibold, fontSize: 11, color: colors.brandPrimary, textTransform: 'uppercase' },
   question: { fontFamily: fonts.bold, fontSize: 20, lineHeight: 26, color: colors.textPrimary },

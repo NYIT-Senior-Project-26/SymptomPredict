@@ -8,6 +8,16 @@
 | Database | PostgreSQL (Supabase) | `backend/app/db/`, `backend/supabase/schema.sql` |
 | External APIs | Google Places, Zocdoc, GoodRx, RxNav, openFDA, Twilio/Agora | `backend/app/services/external/` |
 
+## Settings (.env)
+
+The whole project uses **one `.env` file at the repo root**. From the repo root:
+
+```bash
+cp .env.example .env            # then fill in the keys
+```
+
+The backend reads all of it. The app reads only `EXPO_PUBLIC_API_URL` (through `frontend/app.config.js`), so secrets in the same file never reach the app. Never give a secret an `EXPO_PUBLIC_` name. Restart the backend and Expo after editing `.env`.
+
 ## Backend
 
 ```bash
@@ -15,7 +25,6 @@ cd backend
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -r requirements.txt
-cp .env.example .env            # then fill in keys
 uvicorn app.main:app --reload
 ```
 
@@ -47,11 +56,10 @@ Requires [Node.js LTS](https://nodejs.org).
 cd frontend
 npm install
 npx expo install --fix          # aligns package versions with the Expo SDK
-cp .env.example .env
 npx expo start                  # scan the QR code with Expo Go
 ```
 
-On a physical phone, set `EXPO_PUBLIC_API_URL` to your computer's LAN IP (e.g. `http://192.168.1.20:8000/api/v1`) and start the backend with `uvicorn app.main:app --reload --host 0.0.0.0`.
+On a physical phone, set `EXPO_PUBLIC_API_URL` in the root `.env` to your computer's LAN IP (e.g. `http://192.168.1.20:8000/api/v1`) and start the backend with `uvicorn app.main:app --reload --host 0.0.0.0`.
 
 ## API keys checklist
 
@@ -66,4 +74,4 @@ On a physical phone, set `EXPO_PUBLIC_API_URL` to your computer's LAN IP (e.g. `
 | Twilio Video | https://console.twilio.com → API Keys | Account SID + API key SID/secret |
 | Agora (alternative) | https://console.agora.io | App ID + certificate |
 
-All secrets live in `backend/.env`. Never put them in `frontend/.env`: anything prefixed `EXPO_PUBLIC_` is bundled into the app.
+All keys go in the root `.env`. Never give them an `EXPO_PUBLIC_` name: those values are sent to the app.

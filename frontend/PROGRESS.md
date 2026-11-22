@@ -15,7 +15,8 @@ Status of the Expo app: what is built, what is still a placeholder, and what com
 | Onboarding & profile setup (1.1–1.7) | ✅ Built; no login, profile kept in memory only (see [Privacy](#privacy-no-login-nothing-saved)) |
 | Home & symptom intake (2.1–2.8) | ✅ Built from the Figma frames; full intake sent to `/predict` |
 | Symptom prediction (ML model + Claude) | ✅ Connected; a real `/predict` request returns a result (see [Symptom prediction](#symptom-prediction)) |
-| Other screen designs | ❌ Sections 3 and 4 are still placeholders |
+| Results & care (3.x) | ⚠️ Result, Emergency and Condition detail built; Providers and Pharmacy are scaffolds (see [Ported screens](#ported-screens)) |
+| Chat & follow-up (4.x) | ⚠️ Export and Feedback built; Medication chat and Profile are scaffolds; History, Tracker and Diagnosis chat are placeholders |
 | Tested on a device | ❔ Type check passes; phone setup worked out (see [Running on a phone](#running-on-a-phone)), full walkthrough in Expo Go not yet confirmed |
 
 ## Running the app
@@ -36,7 +37,7 @@ The symptom check needs the backend running. From the repo root:
 
 ```
 pip install -r requirements.txt -r backend/requirements.txt
-cp backend/.env.example backend/.env      # then set ANTHROPIC_API_KEY
+cp .env.example .env                      # then set ANTHROPIC_API_KEY
 cd backend
 python -m ml_layer.train_model            # once per machine; the model file is gitignored
 uvicorn app.main:app --host 0.0.0.0
@@ -44,16 +45,16 @@ uvicorn app.main:app --host 0.0.0.0
 
 - **No trained model:** `/predict` still works, but Claude analyzes without the model's ranking.
 - **`--reload` on Windows:** auto-reload can get stuck halfway ("Reloading..." with no "Started server process" after it) and keep serving the old code. If that happens, stop the server and start it again.
-- **After editing `backend/.env`:** restart the server; it reads the file only at startup.
+- **After editing `.env`:** restart the backend and Expo; both read it only at startup. The project has one `.env`, at the repo root (see the root README).
 
 ### Running on a phone
 
-1. In `frontend/.env`, set `EXPO_PUBLIC_API_URL=http://<your computer's IP>:8000/api/v1`, not `localhost`. On Windows, `ipconfig` shows the IP under "Wi-Fi".
+1. In the root `.env`, set `EXPO_PUBLIC_API_URL=http://<your computer's IP>:8000/api/v1`, not `localhost`. On Windows, `ipconfig` shows the IP under "Wi-Fi".
 2. Put the phone and the computer on the same network, then restart Expo with `npx expo start -c` so it picks up the `.env` change.
 3. Check that the phone can reach the backend: open `http://<IP>:8000/health` in the phone's browser. It should show `{"status":"ok",...}`.
 
 **Guest and campus Wi-Fi block this.** They usually stop devices from connecting to each other. Expo Go on Android then shows `java.io.IOException: Failed to download remote update`. Fixes:
-- **Phone hotspot (recommended):** connect the computer to the phone's hotspot. The computer's IP changes, so update `frontend/.env` and restart Expo.
+- **Phone hotspot (recommended):** connect the computer to the phone's hotspot. The computer's IP changes, so update the root `.env` and restart Expo.
 - **`npx expo start --tunnel`:** the app loads, but the symptom check still can't reach the backend.
 
 After switching networks, fully close Expo Go and scan the new QR code; the "Recently opened" entry points to the old address.
@@ -76,15 +77,29 @@ frontend/
 ├── assets/               Logo and icons exported from Figma
 └── src/
     ├── api/client.ts     Backend API calls
-    ├── components/       Shared components (intake.tsx: pieces shared by the intake screens)
-    ├── intake/           Intake options and questions (content.ts), /predict request builder (request.ts)
-    ├── profile/          Profile setup options (content.ts)
-    ├── state/intake.tsx  Holds intake answers and the prediction result
-    ├── state/profile.tsx Holds the profile (memory only)
-    └── theme/index.ts    Colors and fonts
+    ├── components/       Shared building blocks used across features: the Figma components (Button,
+    │                     Chip, TriageBadge, …) plus ScreenLayout, Checkbox, ScreenPlaceholder
+    ├── intake/           Symptom intake (2.x)
+    │   ├── content.ts        Options and questions (+ bodyAreaQuestions.ts)
+    │   ├── request.ts        Builds the /predict request
+    │   ├── state.tsx         Holds intake answers and the prediction result
+    │   └── components.tsx    UI pieces shared by the intake screens
+    ├── profile/          Profile setup (1.3–1.7)
+    │   ├── content.ts        Options
+    │   ├── state.tsx         Holds the profile (memory only)
+    │   └── components.tsx    UI pieces shared by the setup screens
+    ├── results/          Results & care (3.x) and follow-up (4.x)
+    │   ├── urgency.ts        What each urgency level shows
+    │   ├── pdf.ts            The export PDF
+    │   ├── components.tsx    UI pieces shared by the results screens
+    │   └── PlacesList.tsx    Nearby places (starting point for Providers and Pharmacy)
+    ├── screens/          4 unported React Navigation screens, not used (see its README)
+    └── theme/index.ts    Colors, fonts and the shared card style
 ```
 
-Use the `@/` alias for anything in `src/`, for example `import { colors } from '@/theme'`.
+**Where code goes:** a feature's content, state and UI pieces live together in its folder (`src/intake/`, `src/profile/`, `src/results/`). Only code used by more than one feature goes in `src/components/`. Screens in `app/` stay thin and import from these.
+
+Use the `@/` alias for anything in `src/`, for example `import { colors } from '@/theme'`. Inside a feature folder, import its own files relatively (`./state`). Use colors from `theme` rather than writing hex values, and spread `card` for the bordered white card (`{ ...card, gap: 10 }`).
 
 ## Design tokens
 
@@ -114,7 +129,7 @@ All in [src/components/](src/components/). To see them together, open **Profile 
 
 ## Screen status
 
-**Placeholder** means the route exists and the navigation buttons work, but the Figma design hasn't been built yet.
+**Placeholder** means the route exists and the navigation buttons work, but the Figma design hasn't been built yet. **Scaffold** is a placeholder that also lists the Figma frame's sections in order, with where each one's data comes from, and links to the frame in Figma. It's ready for a teammate to build. To add one, pass `figmaNode` and `sections` to `ScreenPlaceholder`.
 
 | # | Figma frame | Route | Status |
 |---|---|---|---|
@@ -133,36 +148,54 @@ All in [src/components/](src/components/). To see them together, open **Profile 
 | 2.6 | Intake · High-risk check | `/intake/high-risk` | ✅ Built |
 | 2.7 | Intake · Confirmation summary | `/intake/summary` | ✅ Built |
 | 2.8 | Loading / Analysis | `/intake/analyzing` | ✅ Built; calls `/predict` |
-| 3.1a–c | Triage Result (3 versions) | `/results` | Working; shows `TriageBadge`, Claude's conditions and a "Model ranking" box; not styled |
-| 3.2 | Emergency Escalation | `/results/emergency` | Placeholder |
-| 3.3 | Provider Recommendations | `/results/providers` | Placeholder |
-| 3.5 | Pharmacy & OTC | `/results/pharmacy` | Placeholder |
-| 3.6a–b | Condition Detail | `/results/condition/[name]` | Placeholder |
-| 4.1 | Medication Chatbot | `/chat/medication` | Placeholder |
-| 4.2 | Diagnosis Chatbot | `/chat/diagnosis` | Placeholder |
-| 4.3 | Session History | `/history` (tab) | Placeholder |
-| 4.5 | Export & Share Sheet | `/export` | Placeholder |
-| 4.6 | Post-Diagnosis Feedback | `/feedback` | Placeholder |
-| 4.7 | Chronic Condition Tracker | `/tracker` | Placeholder |
-| 4.8 | Profile & Settings | `/profile` (tab) | Placeholder |
+| 3.1a–c | Triage Result (3 versions) | `/results` | ✅ Built from 3.1a/3.1b: next step, "See a doctor if you notice" (self-care), expandable condition cards with matching symptoms and "Why this match". Likelihood levels instead of match % |
+| 3.2 | Emergency Escalation | `/results/emergency` | ✅ Ported; Call 911, poison control |
+| 3.3 | Provider Recommendations | `/results/providers` | Scaffold (needs Zocdoc access for booking) |
+| 3.5 | Pharmacy & OTC | `/results/pharmacy` | Scaffold (needs a medication-interaction source; GoodRx for prices) |
+| 3.6a–b | Condition Detail | `/results/condition/[name]` | ✅ Built: two tabs filled from MedlinePlus (see [Condition details](#condition-details)). No OTC section |
+| 4.1 | Medication Chatbot | `/chat/medication` | Scaffold (needs a backend chat endpoint) |
+| 4.2 | Diagnosis Chatbot | `/chat/diagnosis` | Placeholder (no teammate version) |
+| 4.3 | Session History | `/history` (tab) | Placeholder (needs saved data; see Open questions) |
+| 4.5 | Export & Share Sheet | `/export` | ✅ Built; PDF of the triage result, share sheet and print |
+| 4.6 | Post-Diagnosis Feedback | `/feedback` | ✅ Ported; checklist, when to seek care, "Was this helpful?" |
+| 4.7 | Chronic Condition Tracker | `/tracker` | Placeholder (needs saved data) |
+| 4.8 | Profile & Settings | `/profile` (tab) | Scaffold |
 
 **Not included:**
 - **1.8 Language** and **3.4 Virtual Visit:** hidden in Figma.
-- **4.4 Doctor-Facing PDF:** a generated document, not an app screen.
+- **4.4 Doctor-Facing PDF:** a generated document, not an app screen. ✅ Built in [src/results/pdf.ts](src/results/pdf.ts) and shared from 4.5. It has no patient name or session ID (neither is collected), no OTC section, and likelihood levels instead of match %.
+
+## Condition details
+
+`POST /api/v1/conditions/detail` fills 3.6. The backend looks the condition up on **MedlinePlus** (U.S. National Library of Medicine, free, no key; [backend/app/services/external/medlineplus.py](../backend/app/services/external/medlineplus.py)), then Claude sorts only that text into the Figma sections and marks the symptoms the person reported ("You") and any treatment they're allergic to. Nothing is added beyond the source, and sections it doesn't cover are hidden. The footer links to the MedlinePlus page. MedlinePlus sometimes covers a condition under a broader topic (strep throat → "Streptococcal Infections"); the hero then says so. If there's no MedlinePlus page, the screen shows why the condition came up and a "Search MedlinePlus" button.
+
+The OTC section from the Treatment options frame was left out on purpose (no medicine suggestions). Details are kept in memory for the session only.
+
+## Ported screens
+
+The team built screens in `src/screens/` for React Navigation, which the app doesn't use (it runs on Expo Router, with routes in `app/`). They were brought in like this:
+
+- **Duplicates removed:** the onboarding, profile setup, home and intake versions (15 screens), `App.tsx`, and the copies in `src/` were deleted; the existing `app/` screens were kept because they're connected to state and `/predict`.
+- **Ported into `app/`:** results (merging DiagnosisResults and Triage), emergency, condition detail and post-diagnosis. Each uses Expo Router, the theme and shared components, and the real check result instead of sample data. Fixed common-cold text (condition detail) and follow-up reminders (post-diagnosis) were left out.
+- **Export (4.5) rebuilt from Figma:** a one-page PDF of the triage result ([src/results/pdf.ts](src/results/pdf.ts)) with a preview, shared through the phone's share sheet or printed. Uses `expo-print`, `expo-sharing` and `expo-file-system`.
+- **Scaffolds for a teammate to build:** Providers (3.3), Pharmacy (3.5), Medication chat (4.1) and Profile (4.8). The team's versions relied on sample content that could mislead in a health app: made-up doctors, a fixed list of drugs and doses, hard-coded answers about drug interactions, a sample user and storage claims. Each scaffold lists its Figma sections and what each needs. Starting point for Providers and Pharmacy: [src/results/PlacesList.tsx](src/results/PlacesList.tsx) lists real nearby places from `/providers/nearby` with the phone's location.
+- **Not ported yet:** Session history, Session summary, Chronic tracker and Doctor-facing PDF need saved data. They stay in `src/screens/` (excluded from the type check); see [its README](src/screens/README.md).
 
 ## Privacy: no login, nothing saved
 
 Because of HIPAA, the team decided not to store user health information in a database. The app goes further: there are no accounts, and nothing is saved on the phone either.
 
-- **What's kept:** the profile ([src/state/profile.tsx](src/state/profile.tsx)) and the intake answers and result ([src/state/intake.tsx](src/state/intake.tsx)) live in memory only. Intake answers are cleared when a new check starts; everything is gone when the app closes.
+- **What's kept:** the profile ([src/profile/state.tsx](src/profile/state.tsx)) and the intake answers and result ([src/intake/state.tsx](src/intake/state.tsx)) live in memory only. Intake answers are cleared when a new check starts; everything is gone when the app closes.
 - **What leaves the phone:** during a check, the answers go to the backend, which ranks them with the ML model on the server and sends them to Claude to produce the result. From the profile, age, sex, allergies, medications, conditions, blood pressure and smoking status are included; **insurance is never sent**. The backend doesn't log or save any of it. Keep it that way: the unused `SymptomCheck` table and Supabase schema shouldn't be wired up.
+- **Export:** the PDF is written to the app's cache only while sharing, then deleted. It includes the result, possible conditions, age, sex, symptoms and intake answers, but not insurance. Once shared, it's kept by whatever app the person sends it to.
+- **Location (when Providers and Pharmacy are built):** `PlacesList` asks for the phone's location, then sends it with the search (e.g. the suggested specialty) to the backend, which passes it to Google Places.
 - **Onboarding every launch:** nothing is remembered, so Welcome, Privacy & consent and profile setup show on every launch.
 - **Consent screen wording:** the Figma frame says "Encrypted end-to-end … at rest", "HIPAA compliant" and "Export or delete your history anytime in Settings". None of these is true for this app (nothing is stored, and HIPAA compliance would require a signed agreement, a BAA, with the AI provider). The three points were rewritten to describe what the app actually does. The text is in `POINTS` in [app/(onboarding)/consent.tsx](app/(onboarding)/consent.tsx); the Figma frame should be updated to match.
 - **Other wording changed:** the analyzing screen (2.8) mentions "your health profile" and "Checking allergies & medications" only when the profile has allergies, medications or conditions; otherwise the step reads "Checking for warning signs". The 1.6 note about unlocking the Chronic Condition Tracker was left out, since the tracker would need saved data.
 
 ## Open questions
 
-- **Match percentage:** `DiagnosisCard` shows a match like "82%". `/predict` now returns a `match_score` (0–100) for the model's candidates, but Claude's final conditions still have only `low` / `medium` / `high` likelihood, and they can include conditions the model doesn't know. Decide which list the card shows: Claude's conditions with the likelihood level, or a score for them too. Until then, the results screen doesn't use the card.
+- **Match percentage (decided):** the team chose likelihood levels (High / Medium / Low) instead of a match % on the result cards, condition detail and PDF, since Claude's conditions often aren't in the ML model and can't be scored. `DiagnosisCard` shows the level where Figma has the bar.
 - **Symptom mappings need review:** which chips and follow-up answers count as which dataset symptom (e.g. "Fever" → `high_fever`, "Bloating" → `distention_of_abdomen`) is in [backend/app/prediction/symptom_map.py](../backend/app/prediction/symptom_map.py). Someone with clinical knowledge should check it.
 - **Keep the mappings in sync:** `symptom_map.py` uses the question ids and option text from [src/intake/content.ts](src/intake/content.ts) and [src/intake/bodyAreaQuestions.ts](src/intake/bodyAreaQuestions.ts). If an option is renamed there, update the backend too, or that answer silently stops reaching the model.
 - **Red flags are only in Claude's prompt:** Claude is told to raise urgency for red flags. A stronger version would have the backend set a minimum urgency for certain answers (for example, blood in vomit → at least urgent care). This needs a clinical decision on which answers count.
@@ -210,5 +243,8 @@ Tests are in [backend/tests/test_predict_ml.py](../backend/tests/test_predict_ml
 1. **Walk through the app in Expo Go** on a phone (see [Running on a phone](#running-on-a-phone)): Welcome → consent → Home → intake → results, against the Figma frames.
 2. **Get the symptom mappings and follow-up questions reviewed** (see Open questions).
 3. **Update the Figma file** to match the no-login decision: the consent claims and the 1.6 tracker note listed under Privacy, and "of 6" on the profile progress bar (the app shows "of 5" because 1.8 Language is hidden).
-4. **Build Results & Care (3.x).** Decide the match percentage question first, then use `DiagnosisCard` and build its expanded state from 3.1a. Connect providers to `api.nearbyProviders` and pharmacy to `api.searchMedication`.
-5. **Build Chat & Follow-up (4.x).** First decide what History, the tracker and Settings should do now that nothing is saved (see Open questions).
+4. **Match the remaining ported screens to Figma** (Emergency 3.2, Feedback 4.6). 3.1, 3.6 and 4.4 are built from their frames.
+5. **Build the scaffolds** (Providers, Pharmacy, Medication chat, Profile); each lists what it needs.
+6. **Add a chat endpoint** to the backend for the medication chat (4.1) and the diagnosis chat (4.2).
+7. **Decide History and the tracker** (4.3, 4.7) now that nothing is saved, then port or drop the screens left in `src/screens/`.
+8. **Set `GOOGLE_PLACES_API_KEY`** in the root `.env` before building Providers and Pharmacy.

@@ -20,7 +20,7 @@ MAX_TOKENS = 2000
 
 @lru_cache(maxsize=1)
 def get_client() -> anthropic.Anthropic:
-    load_dotenv()  # finds backend/.env by searching upward from this file
+    load_dotenv()  # finds the repo-root .env by searching upward from this file
     return anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 # Step 1: Create questionnaire summary

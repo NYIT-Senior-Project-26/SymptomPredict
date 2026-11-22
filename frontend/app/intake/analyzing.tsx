@@ -7,9 +7,9 @@ import { api } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { buildPredictInput } from '@/intake/request';
-import { useIntake } from '@/state/intake';
-import { hasHealthDetails, useProfile } from '@/state/profile';
-import { colors, fonts } from '@/theme';
+import { useIntake } from '@/intake/state';
+import { hasHealthDetails, useProfile } from '@/profile/state';
+import { card, colors, fonts } from '@/theme';
 
 /** How often the checklist advances while waiting for the API. It never passes the last step on its own. */
 const STEP_INTERVAL_MS = 2500;
@@ -185,15 +185,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
-  steps: {
-    alignSelf: 'stretch',
-    gap: 14,
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  steps: { ...card, alignSelf: 'stretch', gap: 14 },
   step: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepText: { fontFamily: fonts.regular, fontSize: 14, color: colors.textPrimary },
   stepTextActive: { fontFamily: fonts.semibold },

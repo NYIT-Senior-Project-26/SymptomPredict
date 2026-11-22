@@ -78,7 +78,7 @@ export default function ComponentGallery() {
         <DiagnosisCard
           rank={1}
           name="Condition name"
-          match={0.82}
+          likelihood="High"
           description="Short plain-language description of the condition."
         />
       </Section>

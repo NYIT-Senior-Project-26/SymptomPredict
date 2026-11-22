@@ -6,7 +6,7 @@ Run from `backend/`:
 
 ```bash
 python -m ml_layer.train_model   # once per machine (model file is gitignored)
-python -m ml_layer.llm           # demo run (needs ANTHROPIC_API_KEY in backend/.env)
+python -m ml_layer.llm           # demo run (needs ANTHROPIC_API_KEY in the repo-root .env)
 pytest
 ```
 

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Logo } from '@/components/Logo';
-import { useIntake } from '@/state/intake';
+import { useIntake } from '@/intake/state';
 import { colors, fonts } from '@/theme';
 
 // 2.1 Home Dashboard. The bell is in the tab header (see app/(tabs)/_layout.tsx).

@@ -2,10 +2,10 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
-import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/components/intake';
-import { finishProfile, ProfileProgress } from '@/components/profile';
+import { IntakeFooter, IntakeLayout, Subtitle, Title } from '@/intake/components';
+import { finishProfile, ProfileProgress } from '@/profile/components';
 import { TextField } from '@/components/TextField';
-import { useProfile } from '@/state/profile';
+import { useProfile } from '@/profile/state';
 import { colors, fonts, palette } from '@/theme';
 
 // 1.7 Profile · Insurance. Kept for showing in-network doctors later; it is not sent with symptom checks.

@@ -12,7 +12,7 @@ Otherwise, from the repo root (`SymptomPredict/`), with Python 3.13:
 python3 -m venv .venv
 source .venv/bin/activate                  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt -r backend/requirements.txt
-cp backend/.env.example backend/.env       # then set ANTHROPIC_API_KEY
+cp .env.example .env                       # then set ANTHROPIC_API_KEY
 ```
 
 **Run every command below from `backend/`**, using `python -m`:
@@ -75,4 +75,4 @@ dataset; `python -m ml_layer.inspect_data` shows the data.
 | Many tests **skipped** | Same: the model-based tests skip until step 2 |
 | `ModuleNotFoundError: ml_layer` or `shared` | You're not in `backend/`, or ran `python ml_layer/x.py` instead of `python -m ml_layer.x` |
 | `Unknown symptom '...'` | Name isn't a dataset column; check spelling against `inspect_data` |
-| Claude auth error | `ANTHROPIC_API_KEY` missing from `backend/.env` |
+| Claude auth error | `ANTHROPIC_API_KEY` missing from the repo-root `.env` |

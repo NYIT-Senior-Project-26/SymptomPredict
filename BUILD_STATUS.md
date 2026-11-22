@@ -30,7 +30,7 @@ Snapshot of what works in the current build, what is blocked on configuration, a
 
 ## Blocked on API keys
 
-The code for these is in place. `backend/.env` doesn't exist yet; copy it from `.env.example` and fill in the keys.
+The code for these is in place. Copy `.env.example` to `.env` at the repo root and fill in the keys.
 
 | Endpoint | Current result | Needs |
 |---|---|---|
@@ -58,7 +58,7 @@ The code for these is in place. `backend/.env` doesn't exist yet; copy it from `
 
 ## Next steps
 
-1. Create `backend/.env` and add an Anthropic key so the main symptom-check flow works.
+1. Create the root `.env` and add an Anthropic key so the main symptom-check flow works.
 2. Install [Node.js LTS](https://nodejs.org) and run the frontend.
 3. Return clear errors when a key is missing in `/predict` and `/providers/nearby`.
 4. ~~Save symptom checks to the database.~~ Dropped: because of HIPAA, the team decided not to store user health information (see [frontend/PROGRESS.md](frontend/PROGRESS.md#privacy-no-login-nothing-saved)). Keep `/predict` free of logging and storage.

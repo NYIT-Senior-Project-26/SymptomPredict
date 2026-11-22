@@ -4,10 +4,10 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 
 import { Chip } from '@/components/Chip';
 import { Icon, IconName } from '@/components/Icon';
-import { IntakeFooter, IntakeLayout, SectionLabel, Subtitle, Title, useIntakeNext } from '@/components/intake';
+import { IntakeFooter, IntakeLayout, SectionLabel, Subtitle, Title, useIntakeNext } from '@/intake/components';
 import { afterStageOne, COMMON_SYMPTOMS } from '@/intake/content';
-import { useIntake } from '@/state/intake';
-import { colors, fonts } from '@/theme';
+import { useIntake } from '@/intake/state';
+import { card, colors, fonts } from '@/theme';
 
 const MAX_LENGTH = 500;
 
@@ -97,14 +97,7 @@ function AltRow({ icon, title, description, href }: { icon: IconName; title: str
 }
 
 const styles = StyleSheet.create({
-  inputCard: {
-    gap: 12,
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  inputCard: { ...card, gap: 12 },
   inputCardFocused: { borderColor: colors.brandPrimary },
   input: {
     minHeight: 46,
@@ -127,14 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brandPrimary,
   },
   speakText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.textOnPrimary },
-  card: {
-    gap: 16,
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    backgroundColor: colors.bgSurface,
-  },
+  card: { ...card, gap: 16 },
   altRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   altIcon: {
     width: 40,
